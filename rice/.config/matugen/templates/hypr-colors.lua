@@ -1,0 +1,11 @@
+return {
+    primary         = "rgba({{colors.primary.default.hex_stripped}}ff)",
+    on_primary      = "rgba({{colors.on_primary.default.hex_stripped}}ff)",
+    secondary       = "rgba({{colors.secondary.default.hex_stripped}}ff)",
+    tertiary        = "rgba({{colors.tertiary.default.hex_stripped}}ff)",
+    error           = "rgba({{colors.error.default.hex_stripped}}ff)",
+    surface         = "rgba({{colors.surface.default.hex_stripped}}ff)",
+    on_surface      = "rgba({{colors.on_surface.default.hex_stripped}}ff)",
+    outline         = "rgba({{colors.outline.default.hex_stripped}}ff)",
+    outline_variant = "rgba({{colors.outline_variant.default.hex_stripped}}aa)",
+}

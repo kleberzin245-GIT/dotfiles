@@ -1,0 +1,31 @@
+[config]
+
+# Hyprland (formato Lua, 0.55+)
+[templates.hyprland]
+input_path = '~/.config/matugen/templates/hypr-colors.lua'
+output_path = '~/.config/hypr/colors.lua'
+post_hook = 'hyprctl reload'
+
+# Hyprlock ainda lê o formato antigo (variáveis $primary etc.)
+[templates.hyprlock]
+input_path = '~/.config/matugen/templates/hypr-colors.conf'
+output_path = '~/.config/hypr/colors.conf'
+
+[templates.waybar]
+input_path = '~/.config/matugen/templates/waybar-colors.css'
+output_path = '~/.config/waybar/colors.css'
+post_hook = 'pkill -SIGUSR2 waybar'
+
+[templates.kitty]
+input_path = '~/.config/matugen/templates/kitty-colors.conf'
+output_path = '~/.config/kitty/colors.conf'
+post_hook = 'pkill -SIGUSR1 kitty'
+
+[templates.fuzzel]
+input_path = '~/.config/matugen/templates/fuzzel-colors.ini'
+output_path = '~/.config/fuzzel/colors.ini'
+
+[templates.mako]
+input_path = '~/.config/matugen/templates/mako-config'
+output_path = '~/.config/mako/config'
+post_hook = 'makoctl reload'

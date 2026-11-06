@@ -1,0 +1,13 @@
+# gerados pelo matugen / pelo menu (recriados ao trocar de wallpaper)
+colors.lua
+colors.conf
+colors.css
+colors.ini
+settings.lua
+mako/config
+# backups e sobras
+*.antes-*
+*.antigo
+*.bak
+*.nao-usado
+backup-pilulas/

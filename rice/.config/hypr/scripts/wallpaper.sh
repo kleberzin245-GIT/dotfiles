@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Uso: wallpaper.sh            -> wallpaper aleatório
+#      wallpaper.sh restore    -> reaplica o último (usado no boot)
+#      wallpaper.sh /caminho/img.jpg
+DIR="$HOME/Pictures/Wallpapers"
+STATE="$HOME/.cache/current_wallpaper"
+mkdir -p "$(dirname "$STATE")" "$DIR"
+
+# swww foi renomeado para awww em versões recentes; suporta os dois
+if command -v awww >/dev/null; then W=awww; else W=swww; fi
+pgrep -x "$W-daemon" >/dev/null || { "$W-daemon" >/dev/null 2>&1 & sleep 1; }
+
+case "$1" in
+  restore) WP="$(cat "$STATE" 2>/dev/null)" ;;
+  "")      WP="$(find "$DIR" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) | shuf -n1)" ;;
+  *)       WP="$1" ;;
+esac
+
+if [ ! -f "$WP" ]; then
+  notify-send "Wallpaper" "Nenhuma imagem encontrada em $DIR"
+  exit 1
+fi
+
+"$W" img "$WP" --transition-type grow --transition-pos center --transition-duration 1.5 --transition-fps 60
+echo "$WP" > "$STATE"
+matugen image "$WP" -m "$(cat ~/.cache/matugen_mode 2>/dev/null || echo dark)" --source-color-index "$(cat ~/.cache/matugen_index 2>/dev/null || echo 0)"
