@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 # Restaura o rice numa máquina nova (Arch/CachyOS/EndeavourOS).
-set -e
+set -Eeuo pipefail
+
+die() { echo "ERRO: $*" >&2; exit 1; }
+
+command -v pacman >/dev/null 2>&1 || die "pacman não encontrado (este instalador é para Arch e derivados)."
+command -v sudo   >/dev/null 2>&1 || die "sudo não encontrado. Instale-o antes de continuar."
+[[ $EUID -ne 0 ]] || die "não execute como root. Use o seu usuário normal."
+
 cd "$(dirname "$0")"
 
 echo "==> Pacotes oficiais"
@@ -8,29 +15,69 @@ sudo pacman -S --needed --noconfirm \
   git stow base-devel \
   hyprland hyprlock hypridle hyprpolkitagent xdg-desktop-portal-hyprland \
   waybar kitty fuzzel mako libnotify \
-  pipewire wireplumber pavucontrol brightnessctl playerctl \
+  pipewire wireplumber pipewire-pulse pavucontrol brightnessctl playerctl \
+  bluez bluez-utils bluetui btop \
   grim slurp wl-clipboard cliphist \
   ttf-jetbrains-mono-nerd papirus-icon-theme adw-gtk-theme nwg-look \
   rofi imagemagick starship fastfetch eza bat
 
+sudo systemctl enable --now bluetooth.service || echo "AVISO: não consegui ativar o bluetooth (sem adaptador?)."
+
 echo "==> AUR (matugen + awww/swww)"
-if ! command -v paru >/dev/null && ! command -v yay >/dev/null; then
-  git clone https://aur.archlinux.org/yay-bin.git /tmp/yay-bin
-  (cd /tmp/yay-bin && makepkg -si --noconfirm)
+if command -v paru >/dev/null 2>&1; then
+  AUR=paru
+elif command -v yay >/dev/null 2>&1; then
+  AUR=yay
+else
+  echo "Nenhum helper AUR encontrado. Instalando yay-bin..."
+  BUILD_DIR="$(mktemp -d)"
+  trap 'rm -rf -- "$BUILD_DIR"' EXIT
+  git clone https://aur.archlinux.org/yay-bin.git "$BUILD_DIR/yay-bin"
+  (cd "$BUILD_DIR/yay-bin" && makepkg -si --noconfirm)
+  command -v yay >/dev/null 2>&1 || die "não foi possível instalar o yay."
+  AUR=yay
 fi
-if command -v paru >/dev/null; then AUR=paru; else AUR=yay; fi
-$AUR -S --needed --noconfirm matugen-bin
-$AUR -S --needed --noconfirm awww || $AUR -S --needed --noconfirm swww
+
+"$AUR" -S --needed --noconfirm matugen-bin
+if ! "$AUR" -S --needed --noconfirm awww; then
+  echo "awww não pôde ser instalado. Tentando swww..."
+  "$AUR" -S --needed --noconfirm swww
+fi
 
 echo "==> Ligando as configs (stow)"
-# --adopt puxa arquivos que já existem pra dentro do repo; o checkout devolve a versão do repo
-stow --adopt -t "$HOME" rice
-git checkout -- .
+# Num PC novo o Hyprland/Kitty já podem ter criado configs padrão no mesmo lugar.
+# Em vez de apagar ou sobrescrever, mandamos os arquivos que conflitam para um backup.
+backup_conflicts() {
+  local out dest target
+  out="$(stow --no --target="$HOME" rice 2>&1)" || true
+  dest="$HOME/.config-backup-rice-$(date +%Y%m%d-%H%M%S)"
+  while IFS= read -r target; do
+    [[ -n "$target" ]] || continue
+    [[ -e "$HOME/$target" || -L "$HOME/$target" ]] || continue
+    mkdir -p "$dest/$(dirname "$target")"
+    mv -- "$HOME/$target" "$dest/$target"
+    echo "   backup: ~/$target -> $dest/$target"
+  done < <(sed -nE 's/^[[:space:]]*\* existing target (is neither a link nor a directory|is not owned by stow): (.*)$/\2/p' <<<"$out")
+}
+backup_conflicts
+stow --target="$HOME" rice || die "o stow ainda encontrou conflitos. Rode: stow --no --verbose --target=\"\$HOME\" rice"
 
-mkdir -p ~/Pictures/Wallpapers
-[ -f ~/.config/shell/rice.sh ] && ! grep -qF 'shell/rice.sh' ~/.bashrc && printf '\n%s\n' "[ -f ~/.config/shell/rice.sh ] && . ~/.config/shell/rice.sh" >> ~/.bashrc
-chmod +x ~/.config/hypr/scripts/*.sh
-~/.config/hypr/scripts/menu.sh --init
+mkdir -p "$HOME/Pictures/Wallpapers"
+
+if [[ -f "$HOME/.config/shell/rice.sh" ]]; then
+  touch "$HOME/.bashrc"
+  if ! grep -qF 'shell/rice.sh' "$HOME/.bashrc"; then
+    # shellcheck disable=SC2016
+    printf '\n%s\n' '[ -f "$HOME/.config/shell/rice.sh" ] && . "$HOME/.config/shell/rice.sh"' >> "$HOME/.bashrc"
+  fi
+fi
+
+if [[ -d "$HOME/.config/hypr/scripts" ]]; then
+  find -L "$HOME/.config/hypr/scripts" -maxdepth 1 -type f -name '*.sh' -exec chmod +x {} +
+else
+  echo "AVISO: diretório de scripts do Hyprland não encontrado."
+fi
+"$HOME/.config/hypr/scripts/menu.sh" --init
 
 echo
 echo "Pronto! Agora:"

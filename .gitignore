@@ -26,3 +26,5 @@ binds.lua
 
 # Logs
 *.log
+colors.rasi
+colors.part

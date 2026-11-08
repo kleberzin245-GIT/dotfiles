@@ -59,6 +59,12 @@ $5████████████                  ████████
 EOLOGO
 
 write_full() {
+  local MEM="" DSK="" BAT=""
+  if [ "$1" = rich ]; then
+    MEM=', "percent": { "type": ["bar", "num"] }, "format": "{percentage-bar} {used} / {total} ({percentage})"'
+    DSK=', "percent": { "type": ["bar", "num"] }, "format": "{size-percentage-bar} {size-used} / {size-total} · {filesystem}"'
+    BAT=', "percent": { "type": ["bar", "num"], "green": 30, "yellow": 15 }, "format": "{capacity-bar} {capacity}"'
+  fi
 cat <<EOT
 {
   "\$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
@@ -69,7 +75,7 @@ cat <<EOT
     "color": { "1": "$C1", "2": "$C2", "3": "$C3", "4": "$C4", "5": "$C5" }
   },
   "display": {
-    "key": { "width": 13 },
+    "key": { "width": 15 },
     "separator": "  ",
     "percent": { "type": ["num"] },
     "bar": {
@@ -93,9 +99,9 @@ cat <<EOT
     "break",
     { "type": "cpu",      "key": "\uf2db  CPU" },
     { "type": "gpu",      "key": "\uf108  GPU" },
-    { "type": "memory",   "key": "\uf538  RAM",    "format": "{percentage-bar} {used} / {total}" },
-    { "type": "disk",     "key": "\uf0a0  Disco",  "folders": "/", "format": "{size-percentage-bar} {size-used} / {size-total} · {filesystem}" },
-    { "type": "battery",  "key": "\uf240  Bateria", "format": "{percentage-bar} {percentage}" },
+    { "type": "memory",   "key": "\udb80\udf5b  RAM"$MEM },
+    { "type": "disk",     "key": "\uf0a0  Disco", "folders": "/"$DSK },
+    { "type": "battery",  "key": "\uf240  Bateria"$BAT },
     "break",
     { "type": "colors" }
   ]
@@ -113,14 +119,26 @@ cat <<EOT
 EOT
 }
 
-write_full > "$CAND"
-if command -v fastfetch >/dev/null 2>&1; then
-  fastfetch -c "$CAND" >/dev/null 2>"$ERRF"; rc=$?
-  if [ "$rc" -ne 0 ] || grep -qiE 'error|invalid|unknown|unrecogni[sz]ed' "$ERRF"; then
-    { echo "--- $(date) rc=$rc: config completa recusada pelo fastfetch, usando a versão simples"; cat "$ERRF"; } >> "$ERRF.hist"
-    write_safe > "$CFG"
-    echo "fastfetch-build: config completa recusada; usei a simples (detalhes em $ERRF.hist)" >&2
-    exit 0
-  fi
+# 0 = ok | 1 = fastfetch recusou | 2 = sobrou {placeholder} sem resolver na saída
+try_config() {
+  write_full "$1" > "$CAND"
+  command -v fastfetch >/dev/null 2>&1 || return 0
+  OUT=$(fastfetch -c "$CAND" 2>"$ERRF"); rc=$?
+  [ "$rc" -eq 0 ] || return 1
+  grep -qiE 'error|invalid|unknown|unrecogni[sz]ed' "$ERRF" && return 1
+  printf '%s' "$OUT" | grep -qE '\{[a-z][a-z0-9-]*\}' && return 2
+  return 0
+}
+
+try_config rich; r=$?
+if [ "$r" -eq 2 ]; then
+  echo "--- $(date): placeholders sem resolver nesta versão; usando os formatos padrão" >> "$ERRF.hist"
+  try_config plain; r=$?
+fi
+if [ "$r" -ne 0 ]; then
+  { echo "--- $(date) r=$r: config recusada pelo fastfetch, usando a versão simples"; cat "$ERRF"; } >> "$ERRF.hist"
+  write_safe > "$CFG"
+  echo "fastfetch-build: config recusada; usei a simples (detalhes em $ERRF.hist)" >&2
+  exit 0
 fi
 cp "$CAND" "$CFG"

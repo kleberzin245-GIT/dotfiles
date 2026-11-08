@@ -39,13 +39,13 @@
 
     "memory": {
         "interval": 5,
-        "format": "\uf538",
+        "format": "\udb80\udf5b",
         "tooltip-format": "RAM {percentage}%"
     },
 
     "network": {
         "format-wifi": "\uf1eb",
-        "format-ethernet": "\uf796",
+        "format-ethernet": "\udb80\ude00",
         "format-disconnected": "\uf071",
         "tooltip-format-wifi": "{essid} ({signalStrength}%)",
         "tooltip-format-ethernet": "{ifname} · {ipaddr}",
@@ -62,7 +62,7 @@
 
     "pulseaudio": {
         "format": "{icon}",
-        "format-muted": "\uf6a9",
+        "format-muted": "\udb81\udf5f",
         "format-icons": { "default": ["\uf027", "\uf027", "\uf028"] },
         "tooltip-format": "{volume}%",
         "scroll-step": 5,

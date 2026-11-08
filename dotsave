@@ -4,4 +4,4 @@ cd "$(dirname "$(readlink -f "$0")")"
 git add -A
 if git diff --cached --quiet; then echo "Nada pra salvar."; exit 0; fi
 git commit -m "${1:-ajustes no rice}"
-git remote get-url origin >/dev/null 2>&1 && git push || true
+git remote get-url origin >/dev/null 2>&1 && git push -u origin HEAD || true
