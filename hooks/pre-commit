@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# pre-commit: bloqueia commits com possíveis dados sensíveis.
+#
+# Regras:
+#   • Nada de password, token, API key, AKIA, credencial, bearer, session...
+#   • Arquivos de chave/certificado/.env são verificados (pode conter segredo).
+#   • Arquivos binários (imagens, fonts, vídeo, áudio, PDF, compactados) são
+#     pulados porque pesquisar texto neles não faz sentido.
+#
+# Uso: basta que o arquivo esteja no .git/hooks/pre-commit (symlink ou cópia).
+# Ex: ln -sf ../../hooks/pre-commit .git/hooks/pre-commit   (da raiz do repo)
+
+set -uo pipefail
+
+BLOCKED=0
+
+while IFS= read -r f; do
+  [ -n "$f" ] || continue
+
+  # Pula o proprio hook de pre-commit (hooks/pre-commit contem os padroes
+  # que ele verifica; sem isso, o commit "auto-bloqueia" ao adicionar este mesmo hook)
+  case "$f" in
+    hooks/pre-commit) continue ;;
+  esac
+
+  # Arquivos de documentação não contêm segredos (são textos explicativos);
+  # pulamos para evitar falso-positivo ("tokens", "AKIA" citados como
+  # "não commitar", não como dados reais).
+  case "$f" in
+    docs/*) continue ;;
+  esac
+
+  # Arquivos binários não são verificados (evita falso-positivo)
+
+  case "$f" in
+    *.png|*.jpg|*.jpeg|*.gif|*.bmp|*.ico|*.woff|*.woff2|*.ttf|*.eot|*.otf|*.mp4|*.webm|*.mp3|*.wav|*.zip|*.tar|*.gz|*.bz2|*.xz|*.pdf|*.xlsx|*.docx|*.pptx|*.sqlite|*.zip)
+      continue
+      ;;
+  esac
+
+  if grep -iEn "password|passwd|pwd|secret|token|api[_-]?key|apikey|access[_-]?key|AKIA|authorization|credential|bearer|session|BEGIN" "$f" >/dev/null 2>&1; then
+    echo "================================================================"
+    echo "⚠️  Possível dado sensível no arquivo:"
+    echo "   $f"
+    echo "   Padrões detectados: password, token, secret, api_key, AKIA, auth."
+    echo "   Remova o dado sensível e tente novamente."
+    echo "================================================================"
+    BLOCKED=1
+  fi
+done < <(git diff --cached --name-only --diff-filter=ACM)
+
+if [ "$BLOCKED" -eq 1 ]; then
+  echo
+  echo "Commit BLOQUEADO. Corrija os arquivos acima e tente novamente."
+  exit 1
+fi
+
+echo "✅ Nenhum dado sensível detectado. Commit permitido."
+exit 0

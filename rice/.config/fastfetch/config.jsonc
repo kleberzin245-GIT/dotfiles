@@ -1,0 +1,52 @@
+{
+  "background_color": "#191113",
+  "background_opacity": 1.0,
+  "window": {
+    "border": {
+      "radius": 8,
+      "draw": true
+    }
+  },
+  "windowbar": {
+    "background_color": "#191113",
+    "border": {
+      "radius": 4,
+      "draw": true
+    },
+    "icon_size": 16,
+    "color": "#e0e2e8",
+    "text_color": "#e0e2e8",
+    "progress_bar": {
+      "color": "#cba6f7",
+      "background_color": "#191113"
+    }
+  },
+  "clock": {
+    "color": "#e0e2e8",
+    "background_color": "#191113"
+  },
+  "date": {
+    "color": "#cba6f7",
+    "background_color": "#191113"
+  },
+  "memory": {
+    "color": "#d6bee5",
+    "background_color": "#191113"
+  },
+  "cpu": {
+    "color": "#cba6f7",
+    "background_color": "#191113"
+  },
+  "battery": {
+    "color": "#cba6f7",
+    "background_color": "#191113"
+  },
+  "unistd": {
+    "color": "#cba6f7",
+    "background_color": "#191113"
+  },
+  "drop_priv": {
+    "color": "#b45555",
+    "background_color": "#191113"
+  }
+}

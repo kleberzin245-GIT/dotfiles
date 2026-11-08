@@ -26,7 +26,7 @@ current_wallpaper
 binds.lua
 mako/config
 mako/colors.part
-fastfetch/config.jsonc
+# starship.toml e fastfetch/config.jsonc são defaults commitados (o matugen os regenera em wallpaper)
 
 # Logs e arquivos de disco
 *.log

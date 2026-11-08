@@ -1,0 +1,88 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+palette = "matugen"
+add_newline = true
+
+format = """
+[$os$username](fg:primary)$directory[$symbol](bg:surfacehigh) $git_branch$git_status$fill$python$nodejs$golang$rust$cmd_duration$time
+$character"""
+
+[palettes.matugen]
+primary = "#cba6f7"
+onprimary = "#cba6f7"
+surfacehigh = "#f2e9e9"
+onsurface = "#595959"
+secondary = "#d6bee5"
+tertiary = "#89b4fa"
+error = "#b45555"
+outline = "#595959"
+
+[os]
+disabled = false
+style = "bg:primary fg:onprimary"
+format = "[ $symbol ]($style)"
+
+[os.symbols]
+Arch = ""
+EndeavourOS = ""
+Linux = ""
+Unknown = ""
+
+[username]
+show_always = false
+style_user = "bg:primary fg:onprimary"
+style_root = "bg:error fg:onprimary"
+format = "[$user ]($style)"
+
+[directory]
+style = "bg:surfacehigh fg:onsurface"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[git_branch]
+symbol = " "
+style = "fg:tertiary"
+format = "[$symbol$branch]($style) "
+
+[git_status]
+style = "fg:secondary"
+format = "($all_status$ahead_behind)"
+
+[fill]
+symbol = " "
+
+[python]
+symbol = " "
+style = "fg:tertiary"
+format = "[$symbol($version) ]($style)"
+
+[nodejs]
+symbol = " "
+style = "fg:tertiary"
+format = "[$symbol($version) ]($style)"
+
+[rust]
+symbol = " "
+style = "fg:tertiary"
+format = "[$symbol($version) ]($style)"
+
+[golang]
+symbol = " "
+style = "fg:tertiary"
+format = "[$symbol($version) ]($style)"
+
+[cmd_duration]
+min_time = 2000
+style = "fg:outline"
+format = "[ $duration ]($style)"
+
+[time]
+disabled = false
+time_format = "%H:%M"
+style = "fg:outline"
+format = "[ $time]($style)"
+
+[character]
+success_symbol = "[\uf00d](bold fg:primary)"
+error_symbol = "[\uf00d](bold fg:error)"
