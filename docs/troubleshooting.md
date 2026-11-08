@@ -1,51 +1,82 @@
-# Troubleshooting
+# Solução de problemas
 
-## Instalação
+Primeiro, veja se o Hyprland reclamou de algo:
 
-### `bootstrap.sh` para Arch e derivados
+```bash
+hyprctl configerrors
+```
 
-Se o script para logo com "pacman não encontrado", o sistema operacional não é Arch ou um
-de seus derivados. Esse rice é focado em Arch; para Ubuntu, Debian ou Fedora, siga
-[`docs/installation.md`](installation.md#-ubuntu--debian-manual).
+## O Hyprland subiu "padrão" (borda azul, teclado em US)
 
-### Packages não instalados
+A partir do Hyprland 0.55 a configuração é o **`hyprland.lua`**. O formato antigo (`hyprland.conf`) pode não ser mais lido. Confira que existe `~/.config/hypr/hyprland.lua` (deve ser um link para `~/dotfiles/rice/.config/hypr/hyprland.lua`).
 
-Se o `stow` ou `git` não estiver instalado, o script para com uma mensagem clara.
-Instale `git` e `stow` antes de rodar.
+## Aviso vermelho "your config has errors"
 
----
+Rode `hyprctl configerrors`. Se o erro for numa regra de camada ou animação, a sintaxe do Lua pode ter mudado na sua versão do Hyprland. Abra uma *issue* com a saída do comando e a versão (`hyprctl version`).
 
-## Uso
+## Cores faltando, tela de bloqueio ou barra sem tema
 
-### `menu.sh` não abre
+As cores só existem depois de gerar o tema uma vez:
 
-- Verifique se o `fuzzel` está instalado.
-- Use `~/dotfiles/rice/.config/hypr/scripts/menu.sh` diretamente.
-- Se o menu trava, rode `menu.sh --init` para regenerar os binds/settings.
+```bash
+~/.config/hypr/scripts/wallpaper.sh ~/Pictures/Wallpapers/SUA_IMAGEM.png
+```
 
-### Wallpaper não aparece
+Se aparecer uma pergunta de cor no terminal, o `wallpaper.sh` está desatualizado (ele deve passar `--source-color-index`).
 
-1. Coloque a imagem em `~/Pictures/Wallpapers`.
-2. Execute: `wallpaper.sh /caminho/sua_imagem.png`
-3. Faça logout e login novamente (mudanças de compositor só rodam no login).
+## Waybar com quadradinhos vazios no lugar de ícones
 
-### Cores/tema não atualizam
+A Nerd Font v3 removeu alguns ícones antigos. Os usados aqui são da faixa que existe. Se aparecer um quadradinho, o ícone daquele módulo não existe na sua fonte: troque o caractere em `waybar/config.jsonc`.
 
-- O Matugen gera `colors.lua`, `colors.conf`, `settings.lua`, `colors.css`, etc. Verifique
-  se `matugen image` rodou com sucesso ao trocar wallpaper.
-- Os arquivos gerados estão ignorados no `.gitignore` (gerados em runtime).
+## `ff` mostra `{percentage-bar}` ou o fastfetch padrão
 
-### Waybar não aparece
+```bash
+~/.config/hypr/scripts/fastfetch-build.sh
+cat ~/.cache/fastfetch-build.log.hist
+```
+O script testa a config contra o seu fastfetch e cai numa versão mais simples se algo for recusado; o motivo fica nesse arquivo.
 
-- A barra é iniciada no boot pelo `hyprland.lua` (`wallpaper.sh restore` → `waybar`).
-- Se aparecer vazia, rode `pkill -x waybar` e tente logar novamente.
+## Aviso do Starship: "Scanning current directory timed out"
 
-### Hi-DPI / escala
+A pasta tem muitos arquivos. Suba o `scan_timeout` no template `matugen/templates/starship.tpl.toml` e no arquivo gerado `~/.config/starship.toml`.
 
-- O `hyprland.lua` define `scale = "auto"`. Ajuste o `scale` manualmente se a tela ficar
-  muito grande/pequena.
+## Bluetooth não funciona
 
-### Texto ilegível (ícones faltando)
+```bash
+sudo systemctl enable --now bluetooth.service
+rfkill list
+bluetoothctl show
+```
+Se não houver controlador, o PC não tem bluetooth embutido (um adaptador USB resolve). Para parear, use `bluetui` ou `bluetoothctl`.
 
-- Instale o **JetBrains Mono Nerd Font** e `Papirus-Icon-theme`.
-- Os ícones nos Waybar, Fuzzel e Hyprlock dependem desse Nerd Font.
+## A grade de wallpapers não abre
+
+- Confira se o `rofi` abre: `rofi -show drun`. O `rofi` oficial tem suporte a Wayland desde a versão 2.0; em versões antigas, instale `rofi-wayland`.
+- Confira se há imagens em `~/Pictures/Wallpapers`.
+- Para refazer as miniaturas: `rm -r ~/.cache/wallpaper-thumbs-sq`.
+
+## Notificações sem o estilo certo
+
+O `~/.config/mako/config` é montado pelo `mako-build.sh` a partir das cores do matugen e do estilo atual. Troque o wallpaper uma vez ou rode `~/.config/hypr/scripts/mako-build.sh`.
+
+## `stow` reclama de conflitos
+
+```bash
+cd ~/dotfiles && stow --no --verbose --target="$HOME" rice
+```
+Mova os arquivos listados como conflito para fora do lugar (ou rode o `bootstrap.sh`, que faz o backup sozinho).
+
+## `settings.env` com valores quebrados
+
+Valores com espaço precisam estar entre aspas (`STYLE="Liquid Glass"`). O menu já grava assim.
+
+## `git push` falha: "sem branch upstream"
+
+O `dotsave` usa `git push -u origin HEAD`. Se rodar o push à mão: `git push -u origin <branch>`.
+
+## `git diff` / `git log` falham com "cannot run less"
+
+```bash
+sudo pacman -S less
+```
+ou use `git --no-pager ...`.
