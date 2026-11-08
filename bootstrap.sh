@@ -8,6 +8,37 @@ command -v pacman >/dev/null 2>&1 || die "pacman não encontrado (este instalado
 command -v sudo   >/dev/null 2>&1 || die "sudo não encontrado. Instale-o antes de continuar."
 [[ $EUID -ne 0 ]] || die "não execute como root. Use o seu usuário normal."
 
+# Detecta o gerenciador de pacotes e orienta a instalação
+if command -v pacman >/dev/null 2>&1; then
+  DISTRO="arch"
+elif command -v apt >/dev/null 2>&1; then
+  DISTRO="debian"
+elif command -v dnf >/dev/null 2>&1; then
+  DISTRO="fedora"
+else
+  DISTRO="unknown"
+fi
+
+case "$DISTRO" in
+  arch)
+    echo "==> Sistema detectado: Arch Linux (ou derivado)."
+    ;;
+  debian)
+    echo "AVISO: Ubuntu/Debian detectado. Essa máquina não é Arch."
+    echo "       Siga os passos de instalação em docs/installation.md#2-ubuntu--debian-manual."
+    exit 1
+    ;;
+  fedora)
+    echo "AVISO: Fedora detectado. Essa máquina não é Arch."
+    echo "       Siga os passos de instalação em docs/installation.md#3-fedora--rpm-manual."
+    exit 1
+    ;;
+  *)
+    echo "AVISO: Sistema operacional desconhecido. Siga docs/installation.md."
+    exit 1
+    ;;
+esac
+
 cd "$(dirname "$0")"
 
 echo "==> Pacotes oficiais"

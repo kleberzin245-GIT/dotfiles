@@ -309,8 +309,16 @@ apply_style() {
   for k in "${!P[@]}"; do save "$k" "${P[$k]}"; done
   save STYLE "$name"
 
-  # waybar: troca layout + css
-  cat "$T/config.jsonc" > ~/.config/waybar/config.jsonc
+  # waybar: mescla a estrutura do tema com a sua configuração (a sua vence)
+  USER_WAYBAR="$HOME/.config/waybar/config.jsonc"
+  python3 - "$T/config.jsonc" "$USER_WAYBAR" <<'PYEOF'
+import json, os, sys
+theme_path, user_path = sys.argv[1:]
+theme = json.load(open(theme_path)) if os.path.exists(theme_path) else {}
+user  = json.load(open(user_path)) if os.path.exists(user_path) else {}
+with open(user_path, "w", encoding="utf-8") as f:
+    json.dump({**theme, **user}, f, indent=4)
+PYEOF
   cat "$T/style.css"    > ~/.config/waybar/style.css
   sed -i --follow-symlinks -E "s/(background-color: alpha\(@surface, )[0-9.]+\)/\1${P[WAYBAR_OP]})/" ~/.config/waybar/style.css
   # kitty

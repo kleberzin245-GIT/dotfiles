@@ -10,21 +10,25 @@
 *.antigo
 *.bak
 *.nao-usado
+*.antes-icones
 backup-pilulas/
 
-# Arquivos gerados pelo Matugen
+# Chamadas geradas pelo Matugen (não editar à mão)
 colors.lua
 colors.conf
 colors.css
 colors.ini
 settings.lua
+matugen/
 
-# Configurações geradas automaticamente
+# Arquivos gerados em runtime (menu / wallpaper)
+current_wallpaper
+binds.lua
 mako/config
 mako/colors.part
-binds.lua
+fastfetch/config.jsonc
 
-# Logs
+# Logs e arquivos de disco
 *.log
 colors.rasi
 colors.part
