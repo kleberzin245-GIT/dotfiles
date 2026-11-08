@@ -1,16 +1,28 @@
-# gerados pelo matugen / pelo menu (recriados ao trocar de wallpaper)
-colors.lua
-colors.conf
-colors.css
-colors.ini
-settings.lua
-mako/config
-# backups e sobras
+# Arquivos temporários
+*.tmp
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Backups
 *.antes-*
 *.antigo
 *.bak
 *.nao-usado
 backup-pilulas/
-binds.lua
+
+# Arquivos gerados pelo Matugen
+colors.lua
+colors.conf
+colors.css
+colors.ini
+settings.lua
+
+# Configurações geradas automaticamente
+mako/config
 mako/colors.part
-rofi/colors.rasi
+binds.lua
+
+# Logs
+*.log
