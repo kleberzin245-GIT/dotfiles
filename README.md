@@ -31,7 +31,7 @@ O objetivo é criar uma área de trabalho com identidade visual distinta, mas qu
   <img src="preview/03-desktop-widgets.jpg" width="23%" alt="Desktop widgets">
   <img src="preview/04-spotify-theme.jpg" width="23%" alt="Spotify integration">
 </p>
-<p align="center"><i>Vista rápida do desktop: informações, seleção de wallpaper, widgets e integração com Spotify.</i></p>
+<p align="center"><i>Vista rápida do desktop: informações, seleção de wallpaper e menu.</i></p>
 
 <p align="center">
   <img src="docs/screenshots/menu.png" width="30%" alt="Menu de controle">
