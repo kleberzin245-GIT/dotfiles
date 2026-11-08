@@ -24,3 +24,7 @@ fi
 "$W" img "$WP" --transition-type grow --transition-pos center --transition-duration 1.5 --transition-fps 60
 echo "$WP" > "$STATE"
 matugen image "$WP" -m "$(cat ~/.cache/matugen_mode 2>/dev/null || echo dark)" --source-color-index "$(cat ~/.cache/matugen_index 2>/dev/null || echo 0)"
+
+# garantias: montam Mako e fastfetch mesmo que os hooks do matugen não rodem
+[ -x ~/.config/hypr/scripts/mako-build.sh ]      && ~/.config/hypr/scripts/mako-build.sh
+[ -x ~/.config/hypr/scripts/fastfetch-build.sh ] && ~/.config/hypr/scripts/fastfetch-build.sh

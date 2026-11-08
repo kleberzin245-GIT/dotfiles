@@ -26,6 +26,18 @@ input_path = '~/.config/matugen/templates/fuzzel-colors.ini'
 output_path = '~/.config/fuzzel/colors.ini'
 
 [templates.mako]
-input_path = '~/.config/matugen/templates/mako-config'
-output_path = '~/.config/mako/config'
-post_hook = 'makoctl reload'
+input_path = '~/.config/matugen/templates/mako-colors'
+output_path = '~/.config/mako/colors.part'
+post_hook = '/home/kaleb/.config/hypr/scripts/mako-build.sh'
+
+[templates.fastfetch]
+input_path = '~/.config/matugen/templates/fastfetch.jsonc'
+output_path = '~/.config/fastfetch/config.jsonc'
+
+[templates.rofi]
+input_path = '~/.config/matugen/templates/rofi-colors.rasi'
+output_path = '~/.config/rofi/colors.rasi'
+
+[templates.starship]
+input_path = '~/.config/matugen/templates/starship.tpl.toml'
+output_path = '~/.config/starship.toml'

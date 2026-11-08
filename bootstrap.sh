@@ -10,7 +10,8 @@ sudo pacman -S --needed --noconfirm \
   waybar kitty fuzzel mako libnotify \
   pipewire wireplumber pavucontrol brightnessctl playerctl \
   grim slurp wl-clipboard cliphist \
-  ttf-jetbrains-mono-nerd papirus-icon-theme adw-gtk-theme nwg-look
+  ttf-jetbrains-mono-nerd papirus-icon-theme adw-gtk-theme nwg-look \
+  rofi imagemagick starship fastfetch eza bat
 
 echo "==> AUR (matugen + awww/swww)"
 if ! command -v paru >/dev/null && ! command -v yay >/dev/null; then
@@ -27,6 +28,7 @@ stow --adopt -t "$HOME" rice
 git checkout -- .
 
 mkdir -p ~/Pictures/Wallpapers
+[ -f ~/.config/shell/rice.sh ] && ! grep -qF 'shell/rice.sh' ~/.bashrc && printf '\n%s\n' "[ -f ~/.config/shell/rice.sh ] && . ~/.config/shell/rice.sh" >> ~/.bashrc
 chmod +x ~/.config/hypr/scripts/*.sh
 ~/.config/hypr/scripts/menu.sh --init
 

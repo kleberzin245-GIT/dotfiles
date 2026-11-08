@@ -1,0 +1,11 @@
+* {
+    surface:              #0f1511;
+    surface-a:            #0f1511d9;
+    surface-glass:        #0f151166;
+    surface-high:         #262b27;
+    primary:              #92d5ab;
+    primary-container:    #085231;
+    on-primary-container: #aef2c6;
+    on-surface:           #dfe4dd;
+    outline:              #8a938b;
+}

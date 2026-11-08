@@ -133,18 +133,6 @@ hl.animation({ leaf = "fade",   enabled = true, speed = 5,  bezier = "smooth" })
 hl.animation({ leaf = "border", enabled = true, speed = 10, bezier = "smooth" })
 
 ------------------ BINDS ------------------
-hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
-hl.bind(mainMod .. " + D",      hl.dsp.exec_cmd(menu))
-hl.bind(mainMod .. " + Q",      hl.dsp.window.close())
-hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd("hyprctl dispatch 'hl.dsp.exit()'"))
-hl.bind(mainMod .. " + F",      hl.dsp.window.fullscreen())
-hl.bind(mainMod .. " + V",      hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + P",      hl.dsp.window.pseudo())
-hl.bind(mainMod .. " + J",      hl.dsp.layout("togglesplit"))
-hl.bind(mainMod .. " + L",      hl.dsp.exec_cmd("hyprlock"))
-hl.bind(mainMod .. " + W",      hl.dsp.exec_cmd("~/.config/hypr/scripts/wallpaper.sh"))
-hl.bind(mainMod .. " + C",      hl.dsp.exec_cmd("cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"))
-hl.bind("Print",                hl.dsp.exec_cmd('grim -g "$(slurp)" - | wl-copy'))
 
 hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }))
 hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
@@ -184,7 +172,7 @@ hl.layer_rule({
     name  = "waybar-blur",
     match = { namespace = "^waybar$" },
     blur = true,
-    ignore_alpha = 0.3,
+    ignore_alpha = 0.1,
 })
 
 -- Launcher (fuzzel): cai do topo e quica
@@ -197,4 +185,3 @@ hl.layer_rule({
 -- Ajustes feitos pelo menu de controle (sobrescrevem os valores acima)
 pcall(require, "settings")
 
-hl.bind("SUPER + M", hl.dsp.exec_cmd("~/.config/hypr/scripts/menu.sh"))

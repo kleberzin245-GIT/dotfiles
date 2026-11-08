@@ -57,7 +57,7 @@
         "format-disabled": "\uf294",
         "format-connected": "\uf293",
         "tooltip-format-connected": "{device_alias}",
-        "on-click": "kitty -e bluetoothctl"
+        "on-click": "kitty -e bluetui"
     },
 
     "pulseaudio": {

@@ -1,0 +1,14 @@
+terminal	SUPER + RETURN	Abrir terminal	exec	kitty
+launcher	SUPER + D	Abrir launcher	exec	fuzzel
+close	SUPER + Q	Fechar janela	dsp	hl.dsp.window.close()
+exit	SUPER + SHIFT + E	Sair do Hyprland	exec	hyprctl dispatch 'hl.dsp.exit()'
+fullscreen	SUPER + F	Tela cheia	dsp	hl.dsp.window.fullscreen()
+float	SUPER + V	Alternar janela flutuante	dsp	hl.dsp.window.float({ action = "toggle" })
+pseudo	SUPER + P	Pseudo-tile	dsp	hl.dsp.window.pseudo()
+split	SUPER + J	Alternar divisão	dsp	hl.dsp.layout("togglesplit")
+lock	SUPER + L	Bloquear a tela	exec	hyprlock
+wallpaper	SUPER + W	Wallpaper aleatório	exec	~/.config/hypr/scripts/wallpaper.sh
+clipboard	SUPER + C	Histórico da área de transf.	exec	cliphist list | fuzzel --dmenu | cliphist decode | wl-copy
+menu	SUPER + M	Menu de controle	exec	~/.config/hypr/scripts/menu.sh
+screenshot	Print	Captura de tela (área)	exec	grim -g "$(slurp)" - | wl-copy
+wallpickr	SUPER + SHIFT + W	Escolher wallpaper (miniaturas)	exec	~/.config/hypr/scripts/wallpaper-picker.sh

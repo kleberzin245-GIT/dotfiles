@@ -11,3 +11,6 @@ mako/config
 *.bak
 *.nao-usado
 backup-pilulas/
+binds.lua
+mako/colors.part
+rofi/colors.rasi

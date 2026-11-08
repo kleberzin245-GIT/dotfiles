@@ -1,0 +1,67 @@
+@import "colors.css";
+
+* {
+    font-family: "JetBrainsMono Nerd Font";
+    font-size: 13px;
+    border: none;
+    border-radius: 0;
+    min-height: 0;
+}
+
+/* Fundo da barra: 50% transparente (o blur vem do Hyprland) */
+window#waybar {
+    background-color: alpha(@surface, 0.5);
+    color: @on_surface;
+}
+
+/* Módulos continuam opacos, sem fundo próprio */
+.modules-left  { margin-left: 8px; }
+.modules-right { margin-right: 8px; }
+
+#workspaces button {
+    all: initial;
+    padding: 0 6px;
+    margin: 0 1.5px;
+    min-width: 9px;
+    color: @on_surface;
+    opacity: 0.5;
+}
+#workspaces button.empty { opacity: 0.3; }
+#workspaces button.active { opacity: 1; }
+#workspaces button:hover { opacity: 0.8; }
+
+#clock { margin-left: 8.75px; font-weight: 600; }
+
+#cpu, #memory, #battery, #pulseaudio, #network, #bluetooth, #tray {
+    min-width: 12px;
+    margin: 0 7.5px;
+}
+#battery.warning  { color: #f9e2af; }
+#battery.critical { color: @error; }
+#pulseaudio.muted { opacity: 0.5; }
+
+tooltip {
+    background: @surface;
+    border: 1px solid @outline;
+    border-radius: 8px;
+}
+tooltip label { color: @on_surface; }
+
+/* gelatina */
+#workspaces button {
+    transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+#workspaces button.active {
+    padding: 0 12px;
+}
+#cpu, #memory, #battery, #pulseaudio, #network, #bluetooth, #tray, #clock {
+    transition: opacity 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+#cpu:hover, #memory:hover, #battery:hover, #pulseaudio:hover, #network:hover, #bluetooth:hover {
+    opacity: 0.7;
+}
+
+/* flutuante */
+window#waybar {
+    border-radius: 14px;
+}
