@@ -2,6 +2,7 @@
 
 palette = "matugen"
 add_newline = true
+scan_timeout = 200
 
 format = """
 [\ue0b6](fg:primary)$os$username[\ue0b0](fg:primary bg:surfacehigh)$directory[\ue0b4](fg:surfacehigh) $git_branch$git_status$fill$python$nodejs$rust$golang$cmd_duration$time
