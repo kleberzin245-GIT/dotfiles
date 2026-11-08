@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Menu de controle do rice (Fuzzel). Abre com SUPER+M ou pelo botão da Waybar.
 # Entrypoint: configura o ambiente e inicia o loop de controle.
+set -euo pipefail
 
 H=~/.config/hypr
 CFG=$H/settings.env

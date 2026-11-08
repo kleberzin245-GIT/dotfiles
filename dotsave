@@ -1,7 +1,49 @@
 #!/usr/bin/env bash
 # Uso: ./dotsave "o que você mudou"   -> commita (e dá push, se houver remoto)
-cd "$(dirname "$(readlink -f "$0")")"
+set -euo pipefail
+
+cd "$(dirname "$(readlink -f "$0")")" || exit 1
+
+# Verificar se é um repositório Git
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+  echo "ERRO: o diretório atual não é um repositório Git." >&2
+  exit 1
+fi
+
+# Verificar se o hook pre-commit está instalado
+if [ ! -e .git/hooks/pre-commit ]; then
+  echo "AVISO: o hook pre-commit não está instalado em .git/hooks/pre-commit." >&2
+  echo "   Para proteger commits contra dados sensíveis, execute:" >&2
+  echo "   ln -sf ../../hooks/pre-commit .git/hooks/pre-commit" >&2
+fi
+
+# Mostrar arquivos modificados antes de adicionar
+echo "=== Arquivos a serem commitados ==="
+git status --short
+echo "=== Diferença detalhada (tudo que será commitado) ==="
+git diff HEAD || true
+echo "=== Digite 'y' para continuar ou 'n' para abortar ==="
+read -r confirm
+if [ "${confirm:-}" != "y" ]; then
+  echo "Cancelado."
+  exit 0
+fi
+
+# Adicionar arquivos
 git add -A
-if git diff --cached --quiet; then echo "Nada pra salvar."; exit 0; fi
+
+# Evitar commit vazio
+if git diff --cached --quiet; then
+  echo "Nada novo para commitar."
+  exit 0
+fi
+
+# Commit
 git commit -m "${1:-ajustes no rice}"
-git remote get-url origin >/dev/null 2>&1 && git push -u origin HEAD || true
+
+# Push
+if git remote get-url origin >/dev/null 2>&1; then
+  git push -u origin HEAD
+else
+  echo "AVISO: nenhum remote 'origin' configurado. Push ignorado." >&2
+fi

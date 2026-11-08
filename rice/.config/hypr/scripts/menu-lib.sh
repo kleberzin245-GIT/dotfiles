@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 # menu-lib.sh — funções do menu de controle (separadas para manutenção).
 # Esta biblioteca é fonte do menu.sh (entry point). Não executa nada sozinha.
 

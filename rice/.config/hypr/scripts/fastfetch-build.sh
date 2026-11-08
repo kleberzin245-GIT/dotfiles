@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 # Monta ~/.config/fastfetch/{config.jsonc,logo.txt} com as cores do matugen.
 # Cores: usa fastfetch/colors.env (matugen); se não existir, lê do kitty/colors.conf (também do matugen).
 CFGDIR=~/.config/fastfetch

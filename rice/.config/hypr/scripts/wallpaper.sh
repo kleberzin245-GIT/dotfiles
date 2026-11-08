@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 # Uso: wallpaper.sh            -> wallpaper aleatório
 #      wallpaper.sh restore    -> reaplica o último (usado no boot)
 #      wallpaper.sh /caminho/img.jpg

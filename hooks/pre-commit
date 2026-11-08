@@ -31,9 +31,8 @@ while IFS= read -r f; do
   esac
 
   # Arquivos binários não são verificados (evita falso-positivo)
-
   case "$f" in
-    *.png|*.jpg|*.jpeg|*.gif|*.bmp|*.ico|*.woff|*.woff2|*.ttf|*.eot|*.otf|*.mp4|*.webm|*.mp3|*.wav|*.zip|*.tar|*.gz|*.bz2|*.xz|*.pdf|*.xlsx|*.docx|*.pptx|*.sqlite|*.zip)
+    *.png|*.jpg|*.jpeg|*.gif|*.bmp|*.ico|*.woff|*.woff2|*.ttf|*.eot|*.otf|*.mp4|*.webm|*.mp3|*.wav|*.zip|*.tar|*.gz|*.bz2|*.xz|*.pdf|*.xlsx|*.docx|*.pptx|*.sqlite)
       continue
       ;;
   esac

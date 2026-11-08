@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 # Monta ~/.config/mako/config = formato do estilo atual + cores do matugen.
 PARTS=~/.config/mako/colors.part
 [ -f "$PARTS" ] || { echo "mako-build: $PARTS não existe (troque o wallpaper uma vez)"; exit 0; }

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 # Grade de miniaturas dos wallpapers (rofi). Uso: wallpaper-picker.sh [--warm]
 DIR=~/Pictures/Wallpapers
 CACHE=~/.cache/wallpaper-thumbs-sq
