@@ -16,6 +16,11 @@ case "$1" in
   *)       WP="$1" ;;
 esac
 
+# primeira execução: sem wallpaper salvo, usa um da pasta
+if [ ! -f "$WP" ] && [ "$1" = restore ]; then
+  WP="$(find "$DIR" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) | shuf -n1)"
+fi
+
 if [ ! -f "$WP" ]; then
   notify-send "Wallpaper" "Nenhuma imagem encontrada em $DIR"
   exit 1

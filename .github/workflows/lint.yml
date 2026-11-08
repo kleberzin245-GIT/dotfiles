@@ -1,0 +1,57 @@
+name: lint
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sintaxe dos scripts (bash -n)
+        run: |
+          set -e
+          for f in bootstrap.sh dotsave rice/.config/hypr/scripts/*.sh rice/.config/shell/rice.sh; do
+            echo "bash -n $f"
+            bash -n "$f"
+          done
+
+      - name: ShellCheck (só avisos e erros)
+        continue-on-error: true   # troque para false depois de zerar os avisos
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq shellcheck
+          shellcheck -S warning bootstrap.sh dotsave rice/.config/hypr/scripts/*.sh
+
+      - name: JSON da Waybar e TOML do matugen
+        run: |
+          python3 - <<'PY'
+          import glob, json, re, sys, tomllib
+          bad = 0
+          for p in glob.glob("rice/.config/waybar/**/config.jsonc", recursive=True):
+              raw = open(p, encoding="utf-8").read()
+              try:
+                  json.loads(raw)
+              except json.JSONDecodeError:
+                  try:
+                      json.loads(re.sub(r"^\s*//.*$", "", raw, flags=re.M))
+                  except json.JSONDecodeError as e:
+                      print("JSON inválido:", p, e); bad = 1
+              else:
+                  print("ok", p)
+          for p in ["rice/.config/matugen/config.toml"] + glob.glob("rice/.config/matugen/templates/*.toml"):
+              try:
+                  tomllib.load(open(p, "rb")); print("ok", p)
+              except Exception as e:
+                  print("TOML inválido:", p, e); bad = 1
+          sys.exit(bad)
+          PY
+
+      - name: Nenhum arquivo gerado no git
+        run: |
+          if git ls-files | grep -E '(^|/)(colors\.(lua|conf|css|ini|rasi)|settings\.lua|binds\.lua)$|\.(antes-[^/]*|bak)$'; then
+            echo "Arquivos gerados ou backups estão versionados (lista acima)."; exit 1
+          fi
+          echo "ok"

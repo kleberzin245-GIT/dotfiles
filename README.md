@@ -17,7 +17,7 @@
 
 ## 📖 Sobre
 
-Este repositório contém a configuração pessoal de um ambiente desktop Linux focado em **aestética, funcionalidade e personalização**, construído em volta do **Hyprland**.
+Este repositório contém a configuração pessoal de um ambiente desktop Linux focado em **estética, funcionalidade e personalização**, construído em volta do **Hyprland**.
 
 O objetivo é criar uma área de trabalho com identidade visual distinta, mas que mantenha uma rotina prática e confortável — com temas dinâmicos, wallpapers com cores em harmonia e um menu interativo de personalização.
 
@@ -55,6 +55,9 @@ O objetivo é criar uma área de trabalho com identidade visual distinta, mas qu
 - **Wallpaper customization** — mudança de wallpaper com cores em tempo real
 - **Custom scripts** — ferramentas para personalização do desktop
 - **Estilos** — troca visual entre *Padrão*, *Liquid Glass* e *Omarchy*
+- **Rofi** — grade de miniaturas para escolher o wallpaper (`SUPER+SHIFT+W`)
+- **Menu de controle** (`SUPER+M`) — wallpaper, estilo, tema, janelas, blur, transparência, gelatina, atalhos editáveis e energia
+- **Starship, fastfetch, eza e bat** — terminal com as cores do wallpaper
 
 ## ⚙️ Stack
 
@@ -67,6 +70,10 @@ O objetivo é criar uma área de trabalho com identidade visual distinta, mas qu
 | Fuzzel | Launcher |
 | Mako | Notificações |
 | Hyprlock | Tela de bloqueio |
+| Rofi       | Seletor de wallpaper      |
+| Starship   | Prompt do terminal        |
+| fastfetch  | Informações do sistema    |
+| awww       | Wallpaper com transições  |
 | GNU Stow | Gerenciamento de dotfiles |
 
 ---
@@ -79,9 +86,10 @@ cd ~/dotfiles
 ./bootstrap.sh
 ```
 
-Pronto. Reinicie a sessão e o ambiente é montado automaticamente.
+Depois, coloque algumas imagens em `~/Pictures/Wallpapers`, gere o tema uma vez com
+`~/.config/hypr/scripts/wallpaper.sh ~/Pictures/Wallpapers/SUA_IMAGEM.png` e faça logout e login.
 
-📖 Detalhes e alternativas para outras distribuições em: [`docs/installation.md`](docs/installation.md) e [`docs/troubleshooting.md`](docs/troubleshooting.md).
+📖 Detalhes (apenas Arch e derivados) em: [`docs/installation.md`](docs/installation.md) e [`docs/troubleshooting.md`](docs/troubleshooting.md).
 
 > ⚠️ Revise `bootstrap.sh` antes de rodar em uma máquina nova.
 
