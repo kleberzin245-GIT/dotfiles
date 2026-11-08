@@ -4,8 +4,8 @@ Este repositório é um **dotfiles** para um ambiente Linux (Hyprland). O fluxo 
 
 ```
 git clone ... ~/dotfiles
-./install.sh            → detecta a distro, instala pacotes e liga as configs
-./bootstrap.sh          → (chamado por install.sh) pacman + AUR + stow
+./install.sh            → detecta a distro (instala automaticamente só no Arch)
+./bootstrap.sh          → (chamado por install.sh no Arch) pacman + AUR + stow
 rice/.config/            → configs do desktop, vinculadas via GNU Stow
 rice/.config/matugen/    → templates de cores usados pelo Matugen
 rice/.config/hypr/scripts/menu.sh → menu de controle interativo (SUPER+M)
@@ -17,7 +17,7 @@ rice/.config/hypr/scripts/menu.sh → menu de controle interativo (SUPER+M)
 Matugen (tema dinâmico)
    ↓ gera cores
 ~/.config/hypr/colors.lua + ~/.config/waybar/colors.css + ~/.config/kitty/colors.conf
-~/.config/fastfetch/config.jsonc
+~/.config/fastfetch/colors.env   (lido por fastfetch-build.sh)
 ~/.config/starship.toml
 ~/.cache/matugen_mode
 ```
@@ -34,9 +34,8 @@ O `menu.sh` pode regenerar essas cores a partir da paleta (menu > Tema).
 | `menu.sh` | `rice/.config/hypr/scripts/` | Menu de controle interativo (SUPER+M) |
 | `wallpaper.sh` | `rice/.config/hypr/scripts/` | Troca de wallpaper com swww/awww + matugen |
 | `dotsave` | raiz | Commit + push dos arquivos de configuração |
-| `bootstrap.sh` | raiz | Instala pacotes, linka configs (stow), configura o ambiente |
-| `install.sh` | raiz | Entrada: detecta a distro e executa o fluxo correto |
-| `dotsave` | raiz | Comita e empurra as mudanças |
+| `bootstrap.sh` | raiz | Instala pacotes, linka configs (stow), configura o ambiente (Arch) |
+| `install.sh` | raiz | Entrada: no Arch chama o bootstrap; nas outras distros imprime o guia manual |
 
 ## Fluxo de personalização
 

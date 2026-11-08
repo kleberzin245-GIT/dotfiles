@@ -19,14 +19,15 @@ colors.conf
 colors.css
 colors.ini
 settings.lua
-matugen/
+fastfetch/colors.env
 
 # Arquivos gerados em runtime (menu / wallpaper)
 current_wallpaper
 binds.lua
+fastfetch/logo.txt
 mako/config
 mako/colors.part
-# starship.toml e fastfetch/config.jsonc são defaults commitados (o matugen os regenera em wallpaper)
+# starship.toml e fastfetch/config.jsonc são defaults commitados (regenerados em wallpaper)
 
 # Logs e arquivos de disco
 *.log

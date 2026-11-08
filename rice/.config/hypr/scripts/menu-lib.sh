@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034  # ícones/constantes são usados por menu.sh após o source
 set -euo pipefail
 # menu-lib.sh — funções do menu de controle (separadas para manutenção).
 # Esta biblioteca é fonte do menu.sh (entry point). Não executa nada sozinha.
@@ -18,12 +19,12 @@ strip() { sed -E 's/^[^ ]+  //'; }                 # tira o ícone da escolha
 # save "chave" "valor" -> escreve no settings.env (e relê)
 save() {
   if grep -q "^$1=" "$CFG"; then sed -i --follow-symlinks "s|^$1=.*|$1=\"$2\"|" "$CFG"; else echo "$1=\"$2\"" >> "$CFG"; fi
+  # shellcheck disable=SC1090
   source "$CFG"
 }
 
 # ---------------- atalhos: dados ----------------
 default_binds() {
-  local row
   row() { printf '%s\t%s\t%s\t%s\t%s\n' "$@"; }
   {
     row terminal   "SUPER + RETURN"    "Abrir terminal"                  exec "kitty"
@@ -35,9 +36,12 @@ default_binds() {
     row pseudo     "SUPER + P"         "Pseudo-tile"                     dsp  'hl.dsp.window.pseudo()'
     row split      "SUPER + J"         "Alternar divisão"                dsp  'hl.dsp.layout("togglesplit")'
     row lock       "SUPER + L"         "Bloquear a tela"                 exec "hyprlock"
+    # shellcheck disable=SC2088  # ~ é literal e expandido pelo shell do Hyprland
     row wallpaper  "SUPER + W"         "Wallpaper aleatório"             exec "~/.config/hypr/scripts/wallpaper.sh"
+    # shellcheck disable=SC2088
     row wallpickr  "SUPER + SHIFT + W" "Escolher wallpaper (miniaturas)" exec "~/.config/hypr/scripts/wallpaper-picker.sh"
     row clipboard  "SUPER + C"         "Histórico da área de transf."    exec 'cliphist list | fuzzel --dmenu | cliphist decode | wl-copy'
+    # shellcheck disable=SC2088
     row menu       "SUPER + M"         "Menu de controle"                exec "~/.config/hypr/scripts/menu.sh"
     row screenshot "Print"             "Captura de tela (área)"          exec 'grim -g "$(slurp)" - | wl-copy'
   } > "$BINDS"
@@ -59,7 +63,7 @@ gen_binds() {
 }
 
 gen_lua() {
-  local GI GO BE BS BP BX INACT ACTIVE ST DP SPRING ST2 DP2
+  local GI GO BE BS BP BX BSZ INACT ACTIVE ST DP SPRING ST2 DP2
   case "$GAPS" in
     "Sem gaps") GI=0; GO=0 ;;
     "Pequeno")  GI=3; GO=6 ;;
@@ -152,12 +156,13 @@ EOT
   } > "$H/settings.lua"
 }
 
-apply_hypr() { gen_lua; gen_binds; hyprctl reload >/dev/null 2>&1; }
+apply_hypr() { gen_lua; gen_binds; hyprctl reload >/dev/null 2>&1 || true; }
 
 # ---------------- helpers de menu ----------------
 fz() {
-  local p="$1  "; [ -n "$4" ] && p="$4  $p"
-  fuzzel --dmenu --prompt "$p" --lines "${2:-8}" --width "${3:-30}"
+  local p="$1  "
+  [ -n "${4:-}" ] && p="$4  $p"
+  fuzzel --dmenu --prompt "$p" --lines "${2:-8}" --width "${3:-30}" || true
 }
 
 pick() {
@@ -169,7 +174,7 @@ pick() {
 }
 
 regen_theme() {
-  local wp; wp="$(cat ~/.cache/current_wallpaper 2>/dev/null)"
+  local wp; wp="$(cat ~/.cache/current_wallpaper 2>/dev/null || true)"
   [ -f "$wp" ] && ~/.config/hypr/scripts/wallpaper.sh "$wp"
 }
 
@@ -243,12 +248,12 @@ menu_transp() {
       v=$(pick "Waybar" "$WAYBAR_OP" 1.0 0.8 0.5 0.3)
       [ -n "$v" ] && { save WAYBAR_OP "$v"
         sed -i --follow-symlinks -E "s/(background-color: alpha\(@surface, )[0-9.]+\)/\\1$v)/" ~/.config/waybar/style.css
-        pkill -SIGUSR2 waybar; } ;;
+        pkill -SIGUSR2 waybar || true; } ;;
     "Kitty")
       v=$(pick "Kitty" "$KITTY_OP" 1.0 0.97 0.85 0.7 0.5)
       [ -n "$v" ] && { save KITTY_OP "$v"
         sed -i --follow-symlinks -E "s/^background_opacity .*/background_opacity $v/" ~/.config/kitty/kitty.conf
-        pkill -SIGUSR1 kitty; } ;;
+        pkill -SIGUSR1 kitty || true; } ;;
   esac
 }
 
@@ -288,10 +293,19 @@ apply_style() {
   # waybar: mescla a estrutura do tema com a sua configuração (a sua vence)
   USER_WAYBAR="$HOME/.config/waybar/config.jsonc"
   python3 - "$T/config.jsonc" "$USER_WAYBAR" <<'PYEOF'
-import json, os, sys
+import json, os, re, sys
+
+def load_jsonc(path):
+    if not os.path.exists(path):
+        return {}
+    raw = open(path, encoding="utf-8").read()
+    raw = re.sub(r"^\s*//.*$", "", raw, flags=re.M)   # comentários de linha
+    raw = re.sub(r",(\s*[}\]])", r"\1", raw)          # vírgulas finais
+    return json.loads(raw) if raw.strip() else {}
+
 theme_path, user_path = sys.argv[1:]
-theme = json.load(open(theme_path)) if os.path.exists(theme_path) else {}
-user  = json.load(open(user_path)) if os.path.exists(user_path) else {}
+theme = load_jsonc(theme_path)
+user = load_jsonc(user_path)
 with open(user_path, "w", encoding="utf-8") as f:
     json.dump({**theme, **user}, f, indent=4)
 PYEOF
@@ -304,8 +318,8 @@ PYEOF
 
   apply_extras
   apply_hypr
-  pkill -x waybar; sleep 0.4; setsid waybar >/dev/null 2>&1 &
-  pkill -SIGUSR1 kitty
+  pkill -x waybar || true; sleep 0.4; setsid waybar >/dev/null 2>&1 &
+  pkill -SIGUSR1 kitty || true
   notify-send "Estilo" "$name aplicado"
 }
 
@@ -326,8 +340,8 @@ conflict() {
   done < "$BINDS"
   case "$new_l" in
     "super + left"|"super + right"|"super + up"|"super + down") echo "Mover foco entre janelas" ;;
-    "super + "+"[0-9]") echo "Ir para o workspace" ;;
-    "super + shift + "+"[0-9]") echo "Mover janela para o workspace" ;;
+    "super + "[0-9]) echo "Ir para o workspace" ;;
+    "super + shift + "[0-9]) echo "Mover janela para o workspace" ;;
   esac
 }
 
@@ -378,8 +392,8 @@ menu_atalhos() {
       lines+="$(printf '%-19s  %s' "$key" "$label")"$'\n'
       n=$((n+1))
     done < "$BINDS"
-    lines+="$(ic "$I_INFO" "Atalhos fixos (só leitura)")"$'\\n'"$(ic "$I_UNDO" "Restaurar atalhos padrão")"
-    idx=$(printf '%s' "$lines" | fuzzel --dmenu --index --prompt "$I_KEYS  Atalhos  " --lines $((n+2)) --width 58)
+    lines+="$(ic "$I_INFO" "Atalhos fixos (só leitura)")"$'\n'"$(ic "$I_UNDO" "Restaurar atalhos padrão")"
+    idx=$(printf '%s' "$lines" | fuzzel --dmenu --index --prompt "$I_KEYS  Atalhos  " --lines $((n+2)) --width 58 || true)
     [ -z "$idx" ] && return
     if   [ "$idx" -lt "$n" ];  then edit_bind $((idx+1))
     elif [ "$idx" -eq "$n" ];  then show_fixed

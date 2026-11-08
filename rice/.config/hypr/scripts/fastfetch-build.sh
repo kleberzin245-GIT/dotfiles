@@ -124,17 +124,25 @@ EOT
 try_config() {
   write_full "$1" > "$CAND"
   command -v fastfetch >/dev/null 2>&1 || return 0
-  OUT=$(fastfetch -c "$CAND" 2>"$ERRF"); rc=$?
-  [ "$rc" -eq 0 ] || return 1
-  grep -qiE 'error|invalid|unknown|unrecogni[sz]ed' "$ERRF" && return 1
-  printf '%s' "$OUT" | grep -qE '\{[a-z][a-z0-9-]*\}' && return 2
+  # o `if !` evita que o set -e encerre o script antes do fallback
+  if ! OUT=$(fastfetch -c "$CAND" 2>"$ERRF"); then
+    return 1
+  fi
+  if grep -qiE 'error|invalid|unknown|unrecogni[sz]ed' "$ERRF"; then
+    return 1
+  fi
+  if printf '%s' "$OUT" | grep -qE '\{[a-z][a-z0-9-]*\}'; then
+    return 2
+  fi
   return 0
 }
 
-try_config rich; r=$?
+r=0
+try_config rich || r=$?
 if [ "$r" -eq 2 ]; then
   echo "--- $(date): placeholders sem resolver nesta versão; usando os formatos padrão" >> "$ERRF.hist"
-  try_config plain; r=$?
+  r=0
+  try_config plain || r=$?
 fi
 if [ "$r" -ne 0 ]; then
   { echo "--- $(date) r=$r: config recusada pelo fastfetch, usando a versão simples"; cat "$ERRF"; } >> "$ERRF.hist"

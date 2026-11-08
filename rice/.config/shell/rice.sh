@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # ~/.config/shell/rice.sh  (carregado pelo ~/.bashrc e ~/.zshrc)
 # só em shell interativo
 case $- in *i*) ;; *) return 0 2>/dev/null ;; esac

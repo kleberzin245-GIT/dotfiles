@@ -1,7 +1,7 @@
 # 󰣇 my dotfiles — Hyprland Rice
 
 <p align="center">
-  <img src="preview/01-desktop-info.jpg" width="80%" alt="Desktop preview">
+  <img src="preview/01-desktop-info.webp" width="80%" alt="Desktop preview">
   <br>
   <b>Um ambiente desktop Linux com identidade visual própria, funcionalidade e personalização.</b>
 </p>
@@ -26,18 +26,18 @@ O objetivo é criar uma área de trabalho com identidade visual distinta, mas qu
 ## 📸 Prévia
 
 <p align="center">
-  <img src="preview/01-desktop-info.jpg" width="23%" alt="Desktop overview">
-  <img src="preview/02-wallpaper-picker.jpg" width="23%" alt="Wallpaper picker">
-  <img src="preview/03-desktop-widgets.jpg" width="23%" alt="Desktop widgets">
-  <img src="preview/04-spotify-theme.jpg" width="23%" alt="Spotify integration">
+  <img src="preview/01-desktop-info.webp" width="23%" alt="Desktop overview">
+  <img src="preview/02-wallpaper-picker.webp" width="23%" alt="Wallpaper picker">
+  <img src="preview/03-desktop-widgets.webp" width="23%" alt="Desktop widgets">
+  <img src="preview/04-spotify-theme.webp" width="23%" alt="Spotify integration">
 </p>
 <p align="center"><i>Vista rápida do desktop: informações, seleção de wallpaper e menu.</i></p>
 
 <p align="center">
-  <img src="docs/screenshots/menu.png" width="30%" alt="Menu de controle">
-  <img src="docs/screenshots/padrao.png" width="30%" alt="Padrão">
-  <img src="docs/screenshots/rio.png" width="30%" alt="Rio">
-  <img src="docs/screenshots/vagabond.png" width="30%" alt="Vagabond">
+  <img src="docs/screenshots/menu.webp" width="30%" alt="Menu de controle">
+  <img src="docs/screenshots/padrao.webp" width="30%" alt="Padrão">
+  <img src="docs/screenshots/rio.webp" width="30%" alt="Rio">
+  <img src="docs/screenshots/vagabond.webp" width="30%" alt="Vagabond">
 </p>
 <p align="center"><i>Menu de controle e variações visuais do rice.</i></p>
 
@@ -100,7 +100,7 @@ Depois, coloque algumas imagens em `~/Pictures/Wallpapers`, gere o tema uma vez 
 ```
 dotfiles/
 ├── bootstrap.sh          // instalação (Arch + derivados)
-├── install.sh            // entrada simples
+├── install.sh            // entrada: Arch (bootstrap) / guia nas demais
 ├── dotsave               // commit + push
 ├── rice/.config          // configs vinculadas ao $HOME via stow
 ├── preview/              // capturas do desktop

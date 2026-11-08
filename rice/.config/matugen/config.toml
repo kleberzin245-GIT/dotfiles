@@ -30,8 +30,8 @@ input_path = '~/.config/matugen/templates/mako-colors'
 output_path = '~/.config/mako/colors.part'
 
 [templates.fastfetch]
-input_path = '~/.config/matugen/templates/fastfetch.jsonc'
-output_path = '~/.config/fastfetch/config.jsonc'
+input_path = '~/.config/matugen/templates/fastfetch-colors.env'
+output_path = '~/.config/fastfetch/colors.env'
 
 [templates.rofi]
 input_path = '~/.config/matugen/templates/rofi-colors.rasi'

@@ -13,34 +13,37 @@ jobs:
       - name: Sintaxe dos scripts (bash -n)
         run: |
           set -e
-          for f in bootstrap.sh dotsave rice/.config/hypr/scripts/*.sh rice/.config/shell/rice.sh; do
+          for f in bootstrap.sh install.sh dotsave hooks/pre-commit rice/.config/hypr/scripts/*.sh rice/.config/shell/rice.sh; do
             echo "bash -n $f"
             bash -n "$f"
           done
 
-      - name: ShellCheck (só avisos e erros)
-        continue-on-error: true   # troque para false depois de zerar os avisos
+      - name: ShellCheck (avisos e erros)
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq shellcheck
-          shellcheck -S warning bootstrap.sh dotsave rice/.config/hypr/scripts/*.sh
+          shellcheck -S warning bootstrap.sh install.sh dotsave hooks/pre-commit \
+            rice/.config/hypr/scripts/*.sh rice/.config/shell/rice.sh
 
-      - name: JSON da Waybar e TOML do matugen
+      - name: JSON da Waybar/fastfetch e TOML do matugen
         run: |
           python3 - <<'PY'
           import glob, json, re, sys, tomllib
+
+          def load_jsonc(path):
+              raw = open(path, encoding="utf-8").read()
+              raw = re.sub(r"^\s*//.*$", "", raw, flags=re.M)
+              raw = re.sub(r",(\s*[}\]])", r"\1", raw)
+              return json.loads(raw) if raw.strip() else {}
+
           bad = 0
-          for p in glob.glob("rice/.config/waybar/**/config.jsonc", recursive=True):
-              raw = open(p, encoding="utf-8").read()
+          for p in glob.glob("rice/.config/waybar/**/config.jsonc", recursive=True) + \
+                   ["rice/.config/fastfetch/config.jsonc"]:
               try:
-                  json.loads(raw)
-              except json.JSONDecodeError:
-                  try:
-                      json.loads(re.sub(r"^\s*//.*$", "", raw, flags=re.M))
-                  except json.JSONDecodeError as e:
-                      print("JSON inválido:", p, e); bad = 1
-              else:
-                  print("ok", p)
+                  load_jsonc(p); print("ok", p)
+              except json.JSONDecodeError as e:
+                  print("JSON inválido:", p, e); bad = 1
+
           for p in ["rice/.config/matugen/config.toml"] + glob.glob("rice/.config/matugen/templates/*.toml"):
               try:
                   tomllib.load(open(p, "rb")); print("ok", p)
@@ -49,9 +52,24 @@ jobs:
           sys.exit(bad)
           PY
 
+      - name: Templates do matugen existem
+        run: |
+          python3 - <<'PY'
+          import os, re, sys
+          cfg = open("rice/.config/matugen/config.toml", encoding="utf-8").read()
+          bad = 0
+          for m in re.finditer(r"input_path\s*=\s*'([^']+)'", cfg):
+              rel = m.group(1).replace("~/.config/", "rice/.config/")
+              if os.path.exists(rel):
+                  print("ok", rel)
+              else:
+                  print("template ausente:", rel); bad = 1
+          sys.exit(bad)
+          PY
+
       - name: Nenhum arquivo gerado no git
         run: |
-          if git ls-files | grep -E '(^|/)(colors\.(lua|conf|css|ini|rasi)|settings\.lua|binds\.lua)$|\.(antes-[^/]*|bak)$'; then
+          if git ls-files | grep -E '(^|/)(colors\.(lua|conf|css|ini|rasi|env)|settings\.lua|binds\.lua|logo\.txt)$|(^|/)mako/config$|\.(antes-[^/]*|bak)$'; then
             echo "Arquivos gerados ou backups estão versionados (lista acima)."; exit 1
           fi
           echo "ok"

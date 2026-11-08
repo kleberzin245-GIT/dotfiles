@@ -11,14 +11,15 @@ mkdir -p "$(dirname "$STATE")" "$DIR"
 if command -v awww >/dev/null; then W=awww; else W=swww; fi
 pgrep -x "$W-daemon" >/dev/null || { "$W-daemon" >/dev/null 2>&1 & sleep 1; }
 
-case "$1" in
-  restore) WP="$(cat "$STATE" 2>/dev/null)" ;;
+ARG="${1:-}"
+case "$ARG" in
+  restore) WP="$(cat "$STATE" 2>/dev/null || true)" ;;
   "")      WP="$(find "$DIR" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) | shuf -n1)" ;;
-  *)       WP="$1" ;;
+  *)       WP="$ARG" ;;
 esac
 
 # primeira execução: sem wallpaper salvo, usa um da pasta
-if [ ! -f "$WP" ] && [ "$1" = restore ]; then
+if [ ! -f "$WP" ] && [ "$ARG" = restore ]; then
   WP="$(find "$DIR" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) | shuf -n1)"
 fi
 

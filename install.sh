@@ -1,29 +1,28 @@
 #!/usr/bin/env bash
 # Entrada única para instalar o rice.
 #
-# Detecta a distribuição e segue o fluxo apropriado:
-#   install.sh          -> Arch/derivados (executa o bootstrap.sh, completo)
-#   install.sh --no-run -> Modo secagem (nenhuma ação executada)
-#   install.sh debian   -> Ubuntu/Debian (guia de pacotes com apt)
-#   install.sh fedora   -> Fedora/RPM (guia de pacotes com dnf)
-#   install.sh ?        -> sistema não reconhecido (sugestão genérica)
+# O fluxo automatizado é suportado apenas no Arch/derivados (via bootstrap.sh).
+# Nas demais distribuições o script imprime um guia de pacotes; a instalação
+# manual completa está em docs/installation.md.
+#
+# Uso:
+#   install.sh          -> Arch: executa o bootstrap.sh
+#   install.sh --no-run -> modo secagem (nenhuma ação executada)
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
 
 say() { echo "$@" ; }
 
-# 1) Verificar flags globais
 DRY_RUN=0
 if [ "${1:-}" = "--no-run" ]; then
   DRY_RUN=1
   shift
 fi
 
-# 2) Verificar dependências essenciais
 check_deps() {
-  local missing=0
-  for cmd in git bash stow; do
+  local missing=0 cmd
+  for cmd in "$@"; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
       echo "ERRO: dependência essencial ausente: '$cmd'." >&2
       missing=1
@@ -35,86 +34,45 @@ check_deps() {
   fi
 }
 
-# 3) Detectar o gerenciador de pacotes
+APT_GUIDE='sudo apt install -y git stow imagemagick pkg-config libglib2.0-dev libwayland-dev wayland-protocols libwayland-egl1 libgtk-3-dev libadwaita-1-dev libnotify-bin waybar rofi fastfetch'
+DNF_GUIDE='sudo dnf install -y git stow ImageMagick pkgconf-pkg-config glib2-devel wayland-devel wayland-protocols-devel libwayland-egl libgtk3-devel libadwaita-devel libnotify waybar rofi fastfetch'
+
 if command -v pacman >/dev/null 2>&1; then
-  MANAGER="pacman"
-elif command -v apt >/dev/null 2>&1; then
-  MANAGER="apt"
-elif command -v dnf >/dev/null 2>&1; then
-  MANAGER="dnf"
-else
-  MANAGER="unknown"
+  say "Sistema detectado: Arch Linux (ou derivado)."
+  if [ "$DRY_RUN" -eq 1 ]; then
+    say "Modo secagem (--no-run): não executarei o bootstrap.sh."
+    say "Para instalar, rode: ./bootstrap.sh"
+    exit 0
+  fi
+  # o stow é instalado pelo próprio bootstrap, então não o exigimos aqui
+  check_deps git bash || exit 1
+  say "Executando o bootstrap.sh (pode levar alguns minutos)..."
+  echo
+  exec ./bootstrap.sh
 fi
 
-say "Sistema operacional detectado: ${MANAGER}"
-
-if [ "${DRY_RUN}" -eq 1 ]; then
-  say "Modo secagem (--no-run): nenhuma ação será executada."
+if command -v apt >/dev/null 2>&1; then
+  say "Sistema detectado: Ubuntu/Debian."
+  say "Este rice é automatizado apenas no Arch. Instale os pacotes manualmente:"
+  echo
+  echo "  $APT_GUIDE"
+  echo
+  say "Depois ligue as configs com: stow --target=\"\$HOME\" rice"
+  say "E siga docs/installation.md para os passos restantes."
+  exit 0
 fi
 
-# 4) Executar o fluxo
-case "$MANAGER" in
-  pacman)
-    say "Detectado Arch Linux (ou derivado)."
-    if [ "${DRY_RUN}" -eq 1 ]; then
-      say "Modo secagem: não executarei o bootstrap.sh."
-      say "Para instalar, rode: ./bootstrap.sh"
-    else
-      check_deps || exit 1
-      say "Executando o bootstrap.sh (pode levar alguns minutos)..."
-      echo
-      ./bootstrap.sh
-    fi
-    ;;
-  apt)
-    say "Detectado Ubuntu/Debian."
-    if [ "${DRY_RUN}" -eq 1 ]; then
-      say "Modo secagem: não executarei instalações com apt."
-      say "Para instalar, rode:"
-      echo
-      echo "  sudo apt install -y git stow imagemagick pkg-config libglib2.0-dev libwayland-dev wayland-protocols libwayland-egl1 waybar libnotify gtk2.0 gtk3.0 libadwaita-1-dev starship eza bat rofi imagemagick fastfetch"
-      echo
-      say "Depois disso, rode: ./install.sh"
-    else
-      check_deps || exit 1
-      say "Executando instalações com apt automaticamente."
-      say "Para instalar, rode:"
-      echo
-      echo "  sudo apt install -y git stow imagemagick pkg-config libglib2.0-dev libwayland-dev wayland-protocols libwayland-egl1 waybar libnotify gtk2.0 gtk3.0 libadwaita-1-dev starship eza bat rofi imagemagick fastfetch"
-      echo
-      say "Depois disso, rode: ./install.sh"
-    fi
-    ;;
-  dnf)
-    say "Detectado Fedora/RPM."
-    if [ "${DRY_RUN}" -eq 1 ]; then
-      say "Modo secagem: não executarei instalações com dnf."
-      say "Para instalar, rode:"
-      echo
-      echo "  sudo dnf install -y git stow imagemagick pkg-config libwayland-devel wayland-protocols waybar libnotify gtk3-devel libadwaita-devel starship eza bat rofi imagemagick fastfetch"
-      echo
-      say "Depois disso, rode: ./install.sh"
-    else
-      check_deps || exit 1
-      say "Executando instalações com dnf automaticamente."
-      say "Para instalar, rode:"
-      echo
-      echo "  sudo dnf install -y git stow imagemagick pkg-config libwayland-devel wayland-protocols waybar libnotify gtk3-devel libadwaita-devel starship eza bat rofi imagemagick fastfetch"
-      echo
-      say "Depois disso, rode: ./install.sh"
-    fi
-    ;;
-  *)
-    say "Sistema operacional não reconhecido."
-    echo
-    say "Se o seu sistema for Debian/Ubuntu, rode:"
-    echo
-    echo "  sudo apt install -y git stow imagemagick pkg-config libglib2.0-dev libwayland-dev wayland-protocols libwayland-egl1 waybar libnotify gtk2.0 gtk3.0 libadwaita-1-dev starship eza bat rofi imagemagick fastfetch"
-    echo
-    say "Se for Fedora/RPM, rode:"
-    echo
-    echo "  sudo dnf install -y git stow imagemagick pkg-config libwayland-devel wayland-protocols waybar libnotify gtk3-devel libadwaita-devel starship eza bat rofi imagemagick fastfetch"
-    echo
-    say "No final, reinicie a sessão e o rice será montado no login."
-    ;;
-esac
+if command -v dnf >/dev/null 2>&1; then
+  say "Sistema detectado: Fedora/RPM."
+  say "Este rice é automatizado apenas no Arch. Instale os pacotes manualmente:"
+  echo
+  echo "  $DNF_GUIDE"
+  echo
+  say "Depois ligue as configs com: stow --target=\"\$HOME\" rice"
+  say "E siga docs/installation.md para os passos restantes."
+  exit 0
+fi
+
+say "Sistema operacional não reconhecido."
+say "Veja docs/installation.md para instalar manualmente."
+exit 1

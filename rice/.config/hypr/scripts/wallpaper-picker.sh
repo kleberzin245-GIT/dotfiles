@@ -16,7 +16,7 @@ thumb() {
   local f="$1" key t
   key=$(printf '%s' "$f" | md5sum | cut -d' ' -f1)-$(stat -c %Y "$f")
   t="$CACHE/$key.png"
-  [ -f "$t" ] || "$IM" "${f}[0]" -auto-orient -thumbnail 400x400^ -gravity center -extent 400x400 "$t" 2>/dev/null
+  [ -f "$t" ] || "$IM" "${f}[0]" -auto-orient -thumbnail 400x400^ -gravity center -extent 400x400 "$t" 2>/dev/null || true
   printf '%s\n' "$t"
 }
 export -f thumb
@@ -30,7 +30,7 @@ fi
 
 # gera as miniaturas que faltam, 4 por vez
 printf '%s\0' "${FILES[@]}" | xargs -0 -P 4 -I{} bash -c 'thumb "$1" >/dev/null' _ {}
-if [ "$1" = "--warm" ]; then echo "${#FILES[@]} miniaturas prontas"; exit 0; fi
+if [ "${1:-}" = "--warm" ]; then echo "${#FILES[@]} miniaturas prontas"; exit 0; fi
 
 # pequenos ajustes de formato conforme o estilo escolhido
 overrides() {
@@ -46,7 +46,7 @@ overrides() {
 
 # monta a lista (arquivo temporário: o texto tem bytes NUL que não passam por variável)
 LIST=$(mktemp)
-cur=$(cat "$STATE" 2>/dev/null)
+cur=$(cat "$STATE" 2>/dev/null || true)
 sel_row=0; i=1
 printf 'Aleatório\x00icon\x1fmedia-playlist-shuffle\n' > "$LIST"
 for f in "${FILES[@]}"; do
@@ -57,7 +57,7 @@ for f in "${FILES[@]}"; do
 done
 
 idx=$(rofi -dmenu -i -show-icons -p "Wallpaper" -format i -selected-row "$sel_row" \
-        -theme "$THEME" -theme-str "$(overrides)" < "$LIST")
+        -theme "$THEME" -theme-str "$(overrides)" < "$LIST" || true)
 rm -f "$LIST"
 [ -z "$idx" ] && exit 0
 

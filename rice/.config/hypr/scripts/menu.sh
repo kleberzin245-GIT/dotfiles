@@ -4,6 +4,7 @@
 set -euo pipefail
 
 H=~/.config/hypr
+# shellcheck disable=SC2034  # CFG é usado pelas funções de menu-lib.sh
 CFG=$H/settings.env
 BINDS=$H/binds.tsv
 mkdir -p ~/.cache
@@ -12,18 +13,24 @@ mkdir -p ~/.cache
 # shellcheck source=menu-lib.sh
 . "$(dirname "${BASH_SOURCE[0]}")"/menu-lib.sh
 
-# Atalhos: dados
-default_binds
+# Valores atuais (gaps, blur, borda...); completa com defaults se faltar algum
+# shellcheck disable=SC1090
+[ -f "$CFG" ] && . "$CFG"
+: "${GAPS:=Médio}" "${ROUNDING:=12}" "${BORDER:=Branca}" "${BLUR:=Leve}"
+: "${INACTIVE:=0.94}" "${WOBBLE:=Wobbly}" "${WAYBAR_OP:=0.5}" "${KITTY_OP:=0.5}"
+: "${STYLE:=Padrão}"
+
+# Atalhos: cria os padrões apenas se ainda não existirem (não sobrescreve personalizações)
 [ -f "$BINDS" ] || default_binds
 gen_binds
 
-if [ "$1" = "--init" ]; then
+if [ "${1:-}" = "--init" ]; then
   gen_lua
   gen_binds
   exit 0
 fi
 
-if [ "$1" = "--extras" ]; then
+if [ "${1:-}" = "--extras" ]; then
   apply_extras
   exit 0
 fi

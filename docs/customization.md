@@ -60,6 +60,6 @@ Para mudar quais programas recebem as cores, edite `rice/.config/matugen/config.
 |---|---|
 | `hyprland.lua`, `binds.tsv`, `settings.env` | `settings.lua`, `binds.lua`, `colors.lua`, `colors.conf` |
 | `waybar/config.jsonc`, `style.css`, `themes/*` | `waybar/colors.css` |
-| `matugen/templates/*`, `config.toml` | `kitty/colors.conf`, `fuzzel/colors.ini`, `rofi/colors.rasi`, `mako/config` |
+| `matugen/templates/*`, `config.toml` | `kitty/colors.conf`, `fuzzel/colors.ini`, `rofi/colors.rasi`, `mako/config`, `fastfetch/colors.env` |
 
 Mudanças em arquivos versionados entram no git com `~/dotfiles/dotsave "descrição"`.

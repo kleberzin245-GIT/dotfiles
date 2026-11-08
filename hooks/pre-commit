@@ -2,7 +2,8 @@
 # pre-commit: bloqueia commits com possíveis dados sensíveis.
 #
 # Regras:
-#   • Nada de password, token, API key, AKIA, credencial, bearer, session...
+#   • Bloqueia atribuições de password/token/secret/API key e formatos
+#     conhecidos (AKIA..., chave privada PEM, "Bearer <token>").
 #   • Arquivos de chave/certificado/.env são verificados (pode conter segredo).
 #   • Arquivos binários (imagens, fonts, vídeo, áudio, PDF, compactados) são
 #     pulados porque pesquisar texto neles não faz sentido.
@@ -37,11 +38,13 @@ while IFS= read -r f; do
       ;;
   esac
 
-  if grep -iEn "password|passwd|pwd|secret|token|api[_-]?key|apikey|access[_-]?key|AKIA|authorization|credential|bearer|session|BEGIN" "$f" >/dev/null 2>&1; then
+  # Exige contexto de atribuição para reduzir falsos positivos (ex.: a palavra
+  # "token" numa frase não bloqueia; "token = abc123" bloqueia).
+  if grep -iEn '(password|passwd|secret|token|api[_-]?key|apikey|access[_-]?key|client[_-]?secret|private[_-]?key)[[:space:]]*[:=]|authorization[[:space:]]*[:=]|bearer[[:space:]]+[A-Za-z0-9._~+/-]+=*|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----' "$f" >/dev/null 2>&1; then
     echo "================================================================"
     echo "⚠️  Possível dado sensível no arquivo:"
     echo "   $f"
-    echo "   Padrões detectados: password, token, secret, api_key, AKIA, auth."
+    echo "   Padrões detectados: credencial atribuída, token, chave de API/privada."
     echo "   Remova o dado sensível e tente novamente."
     echo "================================================================"
     BLOCKED=1

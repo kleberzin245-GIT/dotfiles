@@ -2,7 +2,7 @@
 
 ## O que funciona
 
-- `./install.sh` — instalação multiplataforma (Arch, Ubuntu/Debian, Fedora/RPM).
+- `./install.sh` — detecta a distro; instala automaticamente no Arch e imprime o guia manual nas demais.
 - `./bootstrap.sh` — configuração do Arch em uma máquina nova.
 - `./dotsave "mensagem"` — commita e empurra as mudanças.
 - `rice/.config/hypr/scripts/menu.sh` — menu de controle (SUPER+M).
