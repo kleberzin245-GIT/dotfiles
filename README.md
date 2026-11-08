@@ -1,4 +1,4 @@
-# 󰣇 dotfiles — Hyprland Rice
+# 󰣇 my dotfiles — Hyprland Rice
 
 <p align="center">
   <b>A customized Linux desktop environment focused on aesthetics, functionality and personalization.</b>
