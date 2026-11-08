@@ -110,6 +110,29 @@ else
 fi
 "$HOME/.config/hypr/scripts/menu.sh" --init
 
+# Verifica se os binários essenciais estão instalados
+check_deps() {
+  local cmd missing=0
+  for cmd in git stow bash hyprctl hyprlock hypridle hyprpolkitagent xdg-desktop-portal-hyprland waybar kitty fuzzel mako matugen rofi imagemagick brightnessctl playerctl starship eza bat fastfetch; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+      echo "AVISO: '$cmd' não encontrado. Pode estar faltando." >&2
+      missing=1
+    fi
+  done
+  if ! command -v awww >/dev/null 2>&1 && ! command -v swww >/dev/null 2>&1; then
+    echo "AVISO: engine de wallpaper (awww/swww) não encontrado." >&2
+    missing=1
+  fi
+  if [ "$missing" -eq 1 ]; then
+    echo "Verifique a lista de dependências em docs/installation.md." >&2
+  else
+    echo "✅ Dependências essenciais presentes."
+  fi
+  return 0
+}
+
+check_deps
+
 echo
 echo "Pronto! Agora:"
 echo "  1) Coloque wallpapers em ~/Pictures/Wallpapers"
