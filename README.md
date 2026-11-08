@@ -1,144 +1,123 @@
 # 󰣇 my dotfiles — Hyprland Rice
 
 <p align="center">
-  <b>A customized Linux desktop environment focused on aesthetics, functionality and personalization.</b>
+  <img src="preview/01-desktop-info.jpg" width="80%" alt="Desktop preview">
+  <br>
+  <b>Um ambiente desktop Linux com identidade visual própria, funcionalidade e personalização.</b>
 </p>
 
 <p align="center">
-  Hyprland · Matugen · Waybar · Kitty · Fuzzel · Mako · Hyprlock
+  <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square">
+  <img src="https://img.shields.io/github/stars/kleberzin245-GIT/dotfiles?style=flat-square&logo=github">
+  <img src="https://img.shields.io/badge/OS-Linux-1a1a2e?style=flat-square&logo=linux">
+  <img src="https://img.shields.io/badge/Compositor-Hyprland-7c3aed?style=flat-square">
 </p>
 
 ---
 
-##  Preview
+## 📖 Sobre
 
-A look at my current desktop setup.
+Este repositório contém a configuração pessoal de um ambiente desktop Linux focado em **aestética, funcionalidade e personalização**, construído em volta do **Hyprland**.
 
-<p align="center">
-  <img src="preview/01-desktop-info.jpg" width="49%" alt="Desktop overview">
-  <img src="preview/02-wallpaper-picker.jpg" width="49%" alt="Wallpaper picker">
-</p>
-
-<p align="center">
-  <img src="preview/03-desktop-widgets.jpg" width="49%" alt="Desktop widgets">
-  <img src="preview/04-spotify-theme.jpg" width="49%" alt="Spotify integration">
-</p>
-
-<p align="center">
-  <img src="preview/05-quick-menu.jpg" width="49%" alt="Customization menu">
-  <img src="preview/06-keyboard-shortcuts.jpg" width="49%" alt="Keyboard shortcuts">
-</p>
+O objetivo é criar uma área de trabalho com identidade visual distinta, mas que mantenha uma rotina prática e confortável — com temas dinâmicos, wallpapers com cores em harmonia e um menu interativo de personalização.
 
 ---
 
-## About
+## 📸 Prévia
 
-This repository contains my personal Linux dotfiles, built around **Hyprland**.
+<p align="center">
+  <img src="preview/01-desktop-info.jpg" width="23%" alt="Desktop overview">
+  <img src="preview/02-wallpaper-picker.jpg" width="23%" alt="Wallpaper picker">
+  <img src="preview/03-desktop-widgets.jpg" width="23%" alt="Desktop widgets">
+  <img src="preview/04-spotify-theme.jpg" width="23%" alt="Spotify integration">
+</p>
+<p align="center"><i>Vista rápida do desktop: informações, seleção de wallpaper, widgets e integração com Spotify.</i></p>
 
-The goal is to create a desktop that combines a distinctive visual identity with a practical and comfortable workflow.
+<p align="center">
+  <img src="docs/screenshots/menu.png" width="30%" alt="Menu de controle">
+  <img src="docs/screenshots/padrao.png" width="30%" alt="Padrão">
+  <img src="docs/screenshots/rio.png" width="30%" alt="Rio">
+  <img src="docs/screenshots/vagabond.png" width="30%" alt="Vagabond">
+</p>
+<p align="center"><i>Menu de controle e variações visuais do rice.</i></p>
 
-The setup is continuously evolving, with custom scripts, dynamic colors and personalized desktop components.
+---
 
-## Features
+## 🚀 Recursos
 
-- **Hyprland:** Dynamic tiling Wayland compositor.
-- **Matugen:** Generates color schemes based on the current wallpaper.
-- **Waybar:** Customized desktop status bar.
-- **Kitty:** Terminal emulator configuration.
-- **Fuzzel:** Application launcher.
-- **Mako:** Notification daemon.
-- **Hyprlock:** Customized lock screen.
-- **Wallpaper customization:** Change wallpapers and adapt the desktop colors.
-- **Custom scripts:** Tools for desktop personalization and configuration management.
+- **Hyprland** — compositor Wayland dinâmico (tiling)
+- **Matugen** — gera esquemas de cores a partir do wallpaper
+- **Waybar** — barra de status personalizada
+- **Kitty** — terminal
+- **Fuzzel** — launcher de aplicativos
+- **Mako** — daemon de notificações
+- **Hyprlock** — tela de bloqueio
+- **Wallpaper customization** — mudança de wallpaper com cores em tempo real
+- **Custom scripts** — ferramentas para personalização do desktop
+- **Estilos** — troca visual entre *Padrão*, *Liquid Glass* e *Omarchy*
 
-## Tech Stack
+## ⚙️ Stack
 
-| Component | Purpose |
+| Componente | Propósito |
 |---|---|
 | Hyprland | Wayland compositor |
-| Matugen | Dynamic theming |
-| Waybar | Status bar |
+| Matugen | Tema dinâmico (cores) |
+| Waybar | Barra de status |
 | Kitty | Terminal |
-| Fuzzel | Application launcher |
-| Mako | Notifications |
-| Hyprlock | Screen locking |
-| GNU Stow | Dotfiles management |
+| Fuzzel | Launcher |
+| Mako | Notificações |
+| Hyprlock | Tela de bloqueio |
+| GNU Stow | Gerenciamento de dotfiles |
 
-## Installation
+---
 
-Clone the repository:
+## 🛠️ Instalação
 
 ```bash
 git clone https://github.com/kleberzin245-GIT/dotfiles.git ~/dotfiles
-```
-
-Enter the directory:
-
-```bash
 cd ~/dotfiles
-```
-
-Run the bootstrap script:
-
-```bash
 ./bootstrap.sh
 ```
 
-**Note:** Review the installation script and its dependencies before running it on a new machine.
+Pronto. Reinicie a sessão e o ambiente é montado automaticamente.
 
-## Configuration Structure
+📖 Detalhes e alternativas para outras distribuições em: [`docs/installation.md`](docs/installation.md) e [`docs/troubleshooting.md`](docs/troubleshooting.md).
 
-```text
-dotfiles/
-├── docs/
-├── rice/
-│   └── .config/
-├── preview/
-├── bootstrap.sh
-├── dotsave
-└── README.md
-```
-
-The configurations inside `~/.config` are symlinks pointing to:
-
-```text
-~/dotfiles/rice/.config
-```
-
-This keeps the configuration centralized and easier to maintain.
-
-## Saving Changes
-
-Use the included `dotsave` script to save configuration changes:
-
-```bash
-~/dotfiles/dotsave "description of the change"
-```
-
-## Dynamic Theming
-
-Matugen generates color configurations based on the current wallpaper.
-
-Generated files such as `colors.*` and `settings.lua` are kept outside Git and recreated when changing wallpapers or running:
-
-```bash
-menu.sh --init
-```
-
-## Project Status
-
-<em>Work in progress.</em>
-
-This rice is constantly evolving. Configurations, scripts and visual elements may change as the project develops.
-
-## Credits
-
-Built and maintained by **kleberzin245-GIT**.
-
-Feel free to explore, learn from the configurations and use ideas in your own desktop setup.
+> ⚠️ Revise `bootstrap.sh` antes de rodar em uma máquina nova.
 
 ---
 
-<p align="center">
-  <b>Made with Linux, Hyprland and a lot of customization.</b>
-</p>
+## 📁 Estrutura
+
+```
+dotfiles/
+├── bootstrap.sh          // instalação (Arch + derivados)
+├── install.sh            // entrada simples
+├── dotsave               // commit + push
+├── rice/.config          // configs vinculadas ao $HOME via stow
+├── preview/              // capturas do desktop
+├── docs/                 // documentação
+└── LICENSE
+```
+
+---
+
+## 🤝 Contribuindo
+
+Sinta-se livre para abrir *issues* ou *pull requests*.
+
+- **Melhorias visuais** → abra um *issue* explicando o cenário atual
+- **Correção de bugs** → *pull request* com a mudança + teste local
+- **Novos scripts** → mantenha tudo dentro de `rice/.config/`, com documentação nos próprios scripts
+
+---
+
+## ⚖️ Licença
+
+Distribuído sobre os termos da [MIT License](LICENSE).
+
+## 👤 Créditos
+
+Feito e mantido por **kleberzin245-GIT**.
+
+Made with Linux, Hyprland e uma quantidade razoável de personalização.
