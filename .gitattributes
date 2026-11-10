@@ -1,0 +1,16 @@
+# Normaliza o texto e marca binários (evita diffs estranhos no Windows)
+* text=auto eol=lf
+
+*.sh      text eol=lf
+*.py      text eol=lf
+*.lua     text eol=lf
+*.md      text eol=lf
+Makefile  text eol=lf
+
+*.webp    binary
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.ttf     binary
+*.otf     binary

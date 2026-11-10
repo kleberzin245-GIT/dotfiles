@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentação
+    url: https://github.com/kleberzin245-GIT/dotfiles/blob/main/docs/installation.md
+    about: Instalação, personalização e solução de problemas
+  - name: Problemas e dúvidas
+    url: https://github.com/kleberzin245-GIT/dotfiles/issues
+    about: Veja issues existentes ou abra uma nova

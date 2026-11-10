@@ -7,11 +7,21 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/kleberzin245-GIT/dotfiles/actions/workflows/lint.yml"><img src="https://github.com/kleberzin245-GIT/dotfiles/actions/workflows/lint.yml/badge.svg" alt="lint"></a>
   <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square">
   <img src="https://img.shields.io/github/stars/kleberzin245-GIT/dotfiles?style=flat-square&logo=github">
-  <img src="https://img.shields.io/badge/OS-Linux-1a1a2e?style=flat-square&logo=linux">
-  <img src="https://img.shields.io/badge/Compositor-Hyprland-7c3aed?style=flat-square">
+  <img src="https://img.shields.io/badge/Arch_Linux-CachyOS_|_EndeavourOS-1793d1?style=flat-square&logo=archlinux">
+  <img src="https://img.shields.io/badge/Compositor-Hyprland_0.55+-7c3aed?style=flat-square">
 </p>
+
+---
+
+## 📚 Sumário
+
+- [Sobre](#-sobre) · [Prévia](#-prévia) · [Recursos](#-recursos) · [Stack](#️-stack)
+- [Requisitos](#-requisitos) · [Instalação](#️-instalação) · [Atualizar / desinstalar](#-atualizar--desinstalar)
+- [Estrutura](#-estrutura) · [Contribuindo](#-contribuindo) · [Licença](#️-licença)
+- [English summary](#-english-summary)
 
 ---
 
@@ -103,7 +113,26 @@ Depois, coloque algumas imagens em `~/Pictures/Wallpapers`, gere o tema uma vez 
 > instale `quickshell` e defina `RICE_SHELL="quickshell"` em
 > `~/.config/hypr/settings.local.env` (a Waybar continua sendo o padrão).
 
+Opções do instalador:
+
+```bash
+./bootstrap.sh --dry-run        # mostra o que seria feito
+./bootstrap.sh --minimal        # sem bluetooth, btop e nwg-look
+./bootstrap.sh --no-bluetooth   # não mexe com bluetooth
+./bootstrap.sh --no-aur         # já tenho matugen/awww instalados
+```
+
 📖 Detalhes (apenas Arch e derivados) em: [`docs/installation.md`](docs/installation.md) e [`docs/troubleshooting.md`](docs/troubleshooting.md).
+
+## 🔄 Atualizar / desinstalar
+
+```bash
+cd ~/dotfiles
+./update.sh             # git pull + stow --restow + menu.sh --init + doctor.sh
+./update.sh --dry-run   # só mostra os comandos
+./uninstall.sh          # remove os links do stow (mantém seus arquivos)
+./uninstall.sh --remove-state   # remove também ~/.local/state/rice
+```
 
 🩺 Algo não funcionou? Rode `./doctor.sh` para um diagnóstico (ou `./doctor.sh --report` para colar numa *issue*).
 
@@ -117,11 +146,15 @@ Depois, coloque algumas imagens em `~/Pictures/Wallpapers`, gere o tema uma vez 
 dotfiles/
 ├── bootstrap.sh          # instalação (Arch + derivados)
 ├── install.sh            # entrada: Arch (bootstrap) / guia nas demais
+├── update.sh             # atualiza o repo e reaplica as configs
+├── uninstall.sh          # remove os links do stow
 ├── dotsave               # commit + push
 ├── doctor.sh             # diagnóstico do rice (somente leitura)
+├── Makefile              # atalhos: install, update, doctor, lint, test
+├── CHANGELOG.md          # histórico de mudanças
 ├── extras/               # ajustes opcionais do sistema (zram)
 ├── hooks/                # git hooks do repositório
-├── .github/              # workflow de verificação e modelo de issue
+├── .github/              # CI, issue/PR templates e Dependabot
 ├── rice/.config          # configs vinculadas ao $HOME via stow
 │   ├── rice/styles       # manifestos de estilo (JSON)
 │   ├── rice/scripts      # style-render.py (gera os arquivos de estilo)
@@ -140,6 +173,28 @@ Sinta-se livre para abrir *issues* ou *pull requests*.
 - **Melhorias visuais** → abra um *issue* explicando o cenário atual
 - **Correção de bugs** → *pull request* com a mudança + teste local
 - **Novos scripts** → mantenha tudo dentro de `rice/.config/`, com documentação nos próprios scripts
+- Antes de abrir o PR rode `make lint` e `make test`; veja [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md)
+
+---
+
+## 🇧🇷🇺🇸 English summary
+
+A Hyprland rice for **Arch Linux and derivatives** with wallpaper-driven colors
+(Matugen), three visual styles (Padrão, Liquid Glass, Omarchy), an interactive
+control menu (`SUPER+M`), a Rofi wallpaper picker, and an optional Quickshell bar.
+
+**Requirements:** Arch-based distro, Hyprland **0.55+** (Lua config), a Nerd Font.
+
+```bash
+git clone https://github.com/kleberzin245-GIT/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+./bootstrap.sh
+```
+
+Then put wallpapers in `~/Pictures/Wallpapers` and run
+`~/.config/hypr/scripts/wallpaper.sh ~/Pictures/Wallpapers/YOUR_IMAGE.png`.
+Update with `./update.sh`; see [`docs/installation.md`](docs/installation.md)
+and [`docs/troubleshooting.md`](docs/troubleshooting.md) for details.
 
 ---
 

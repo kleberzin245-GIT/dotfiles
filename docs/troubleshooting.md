@@ -89,7 +89,7 @@ Veja o log com `quickshell -p ~/.config/quickshell --verbose`.
 ## `stow` reclama de conflitos
 
 ```bash
-cd ~/dotfiles && stow --no --verbose --target="$HOME" rice
+cd ~/dotfiles && stow --no --no-folding --verbose --target="$HOME" rice
 ```
 Mova os arquivos listados como conflito para fora do lugar (ou rode o `bootstrap.sh`, que faz o backup sozinho).
 
@@ -107,3 +107,16 @@ O `dotsave` usa `git push -u origin HEAD`. Se rodar o push à mão: `git push -u
 sudo pacman -S less
 ```
 ou use `git --no-pager ...`.
+
+## Atualizei e algo quebrou
+
+```bash
+cd ~/dotfiles
+./update.sh --dry-run   # veja o que será feito
+git log --oneline -10   # identifique a mudança
+./doctor.sh --report    # cole o resultado numa issue
+```
+
+Se o problema for visual, faça logout e login (ou `hyprctl reload`).
+Para testar uma versão antiga: `git switch --detach <tag-ou-commit>` e rode
+`~/.config/hypr/scripts/menu.sh --init`; para voltar, use `git switch -`.

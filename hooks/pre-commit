@@ -8,8 +8,9 @@
 #   • Arquivos binários (imagens, fonts, vídeo, áudio, PDF, compactados) são
 #     pulados porque pesquisar texto neles não faz sentido.
 #
-# Uso: basta que o arquivo esteja no .git/hooks/pre-commit (symlink ou cópia).
-# Ex: ln -sf ../../hooks/pre-commit .git/hooks/pre-commit   (da raiz do repo)
+# Uso: ative uma vez com, na raiz do repo:
+#   git config core.hooksPath hooks
+# O bootstrap.sh e o dotsave fazem isso automaticamente.
 
 set -uo pipefail
 

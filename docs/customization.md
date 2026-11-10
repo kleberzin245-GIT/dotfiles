@@ -14,7 +14,19 @@ Quase tudo se ajusta pelo **menu de controle** (`SUPER+M`). Cada escolha é apli
 | **Transparência** | Da Waybar e do Kitty |
 | **Gelatina** | Intensidade das animações elásticas: Desligada, Suave, Wobbly ou Extrema |
 | **Atalhos** | Ver e trocar os atalhos (veja [keybinds.md](keybinds.md)) |
-| **Energia** | Bloquear, suspender, sair, reiniciar, desligar |
+| **Energia** | Bloquear, suspender, sair, reiniciar, desligar (com confirmação) |
+
+Cada opção mostra o valor atual; o menu fica aberto depois de aplicar (só
+"Energia" fecha). Também dá para automatizar sem abrir o Fuzzel:
+
+```bash
+menu.sh --set GAPS=Grande --set BLUR=Vidro
+menu.sh --apply-style "Liquid Glass"
+menu.sh --reset          # descarta os ajustes locais e volta ao Padrão
+```
+
+Chaves aceitas em `--set`: `GAPS`, `ROUNDING`, `BORDER`, `BLUR`, `INACTIVE`,
+`WOBBLE`, `WAYBAR_OP`, `KITTY_OP`, `RICE_SHELL` e `STYLE`.
 
 ## Estilos
 

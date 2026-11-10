@@ -26,11 +26,78 @@ strip() { sed -E 's/^[^ ]+  //'; }                 # tira o ícone da escolha
 
 # save "chave" "valor" -> escreve no settings.local.env (estado do usuário)
 save() {
+  local escaped=${2//\\/\\\\}
+  escaped=${escaped//&/\\&}
+  escaped=${escaped//|/\\|}
+  escaped=${escaped//\"/\\\"}
   mkdir -p "$(dirname "$CFG")"
   [ -f "$CFG" ] || : > "$CFG"
-  if grep -q "^$1=" "$CFG"; then sed -i "s|^$1=.*|$1=\"$2\"|" "$CFG"; else echo "$1=\"$2\"" >> "$CFG"; fi
+  if grep -q "^$1=" "$CFG"; then
+    sed -i "s|^$1=.*|$1=\"$escaped\"|" "$CFG"
+  else
+    printf '%s="%s"\n' "$1" "$2" >> "$CFG"
+  fi
   # shellcheck disable=SC1090
   source "$CFG"
+}
+
+# confirm "pergunta" -> retorna 0 só se o usuário escolher "Sim"
+confirm() {
+  local answer
+  answer=$(pick "$1" "" "Não" "Sim") || true
+  [ "$answer" = "Sim" ]
+}
+
+# set_option CHAVE=VALOR -> altera uma opção fora do menu interativo
+set_option() {
+  local pair="$1" key value render=hypr
+  case "$pair" in
+    *=*) key=${pair%%=*}; value=${pair#*=} ;;
+    *) echo "ERRO: use CHAVE=VALOR (ex.: GAPS=Grande)." >&2; return 2 ;;
+  esac
+  [ -n "$value" ] || { echo "ERRO: valor vazio para $key." >&2; return 2; }
+
+  case "$key" in
+    GAPS)
+      case "$value" in "Sem gaps"|"Pequeno"|"Médio"|"Grande") ;; *) echo "ERRO: GAPS inválido." >&2; return 2 ;; esac ;;
+    BORDER)
+      case "$value" in "Branca"|"Dinâmica"|"Vidro"|"Sem borda") ;; *) echo "ERRO: BORDER inválido." >&2; return 2 ;; esac ;;
+    BLUR)
+      case "$value" in "Desligado"|"Leve"|"Médio"|"Forte"|"Vidro") ;; *) echo "ERRO: BLUR inválido." >&2; return 2 ;; esac ;;
+    WOBBLE)
+      case "$value" in "Desligada"|"Suave"|"Wobbly"|"Extrema") ;; *) echo "ERRO: WOBBLE inválido." >&2; return 2 ;; esac ;;
+    ROUNDING|WAYBAR_OP|KITTY_OP|INACTIVE) render=render ;;
+    RICE_SHELL)
+      case "$value" in waybar|quickshell) ;; *) echo "ERRO: RICE_SHELL deve ser waybar ou quickshell." >&2; return 2 ;; esac
+      render=shell ;;
+    STYLE) apply_style "$value"; return $? ;;
+    *) echo "ERRO: chave desconhecida: $key" >&2; return 2 ;;
+  esac
+
+  case "$key" in
+    ROUNDING|WAYBAR_OP|KITTY_OP|INACTIVE)
+      if ! [[ "$value" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+        echo "ERRO: $key deve ser numérico." >&2; return 2
+      fi ;;
+  esac
+
+  save "$key" "$value"
+  case "$render" in
+    hypr) apply_hypr ;;
+    render)
+      case "$key" in
+        WAYBAR_OP)
+          ~/.config/rice/scripts/style-render.py --waybar
+          if [ "${RICE_SHELL:-waybar}" = waybar ]; then
+            ~/.config/hypr/scripts/shell-start.sh --restart >/dev/null 2>&1 &
+          fi ;;
+        KITTY_OP)
+          ~/.config/rice/scripts/style-render.py --kitty
+          pkill -SIGUSR1 kitty 2>/dev/null || true ;;
+      esac ;;
+    shell) ~/.config/hypr/scripts/shell-start.sh --restart >/dev/null 2>&1 & ;;
+  esac
+  echo "$key=\"$value\"" >&2
 }
 
 # ---------------- atalhos: dados ----------------
@@ -193,7 +260,7 @@ regen_theme() {
 menu_wallpaper() {
   if [ -x ~/.config/hypr/scripts/wallpaper-picker.sh ] && command -v rofi >/dev/null; then
     ~/.config/hypr/scripts/wallpaper-picker.sh
-    exit 0
+    return 0
   fi
   menu_wallpaper_lista
 }
@@ -211,12 +278,12 @@ menu_wallpaper_lista() {
 }
 
 menu_tema() {
-  local sel i
-  sel=$( {
-      ic "$I_MOON" "Modo: escuro"
-      ic "$I_SUN"  "Modo: claro"
-      for i in 1 2 3 4; do ic "$I_THEME" "Cor base: $i"; done
-    } | fz "Tema" 6 30 "$I_THEME" | strip)
+  local sel mode index cur
+  mode=$(cat ~/.cache/matugen_mode 2>/dev/null || true); mode=${mode:-dark}
+  index=$(cat ~/.cache/matugen_index 2>/dev/null || true); index=${index:-0}
+  [ "$mode" = "light" ] && cur="Modo: claro" || cur="Modo: escuro"
+  sel=$(pick "Tema (cor base: $((index + 1)))" "$cur" \
+    "Modo: escuro" "Modo: claro" "Cor base: 1" "Cor base: 2" "Cor base: 3" "Cor base: 4")
   case "$sel" in
     "Modo: escuro") echo dark  > ~/.cache/matugen_mode; regen_theme ;;
     "Modo: claro")  echo light > ~/.cache/matugen_mode; regen_theme ;;
@@ -227,36 +294,36 @@ menu_tema() {
 menu_janelas() {
   local sel v
   sel=$( {
-      ic "$I_ARROWS" "Espaçamento (gaps)"
-      ic "$I_CIRCLE" "Arredondamento"
-      ic "$I_SQUARE" "Borda"
-      ic "$I_OPAC"   "Opacidade das inativas"
+      ic "$I_ARROWS" "Espaçamento (gaps: $GAPS)"
+      ic "$I_CIRCLE" "Arredondamento (${ROUNDING}px)"
+      ic "$I_SQUARE" "Borda ($BORDER)"
+      ic "$I_OPAC"   "Opacidade das inativas ($INACTIVE)"
     } | fz "Janelas" 4 30 "$I_WIN" | strip)
   case "$sel" in
-    "Espaçamento (gaps)")
+    "Espaçamento (gaps:"*)
       v=$(pick "Gaps" "$GAPS" "Sem gaps" "Pequeno" "Médio" "Grande"); [ -n "$v" ] && { save GAPS "$v"; apply_hypr; } ;;
-    "Arredondamento")
+    "Arredondamento ("*)
       v=$(pick "Arredondamento" "$ROUNDING" 0 6 12 20); [ -n "$v" ] && { save ROUNDING "$v"; apply_hypr; } ;;
-    "Borda")
+    "Borda ("*)
       v=$(pick "Borda" "$BORDER" "Branca" "Dinâmica" "Vidro" "Sem borda"); [ -n "$v" ] && { save BORDER "$v"; apply_hypr; } ;;
-    "Opacidade das inativas")
+    "Opacidade das inativas ("*)
       v=$(pick "Inativas" "$INACTIVE" 1.0 0.94 0.85 0.7); [ -n "$v" ] && { save INACTIVE "$v"; apply_hypr; } ;;
   esac
 }
 
 menu_blur() {
-  local v; v=$(pick "Blur" "$BLUR" "Desligado" "Leve" "Médio" "Forte" "Vidro")
+  local v; v=$(pick "Blur (atual: $BLUR)" "$BLUR" "Desligado" "Leve" "Médio" "Forte" "Vidro")
   [ -n "$v" ] && { save BLUR "$v"; apply_hypr; }
 }
 
 menu_transp() {
   local sel v
   sel=$( {
-      ic "$I_BARS" "Waybar"
-      ic "$I_TERM" "Kitty"
+      ic "$I_BARS" "Waybar ($WAYBAR_OP)"
+      ic "$I_TERM" "Kitty ($KITTY_OP)"
     } | fz "Transparência" 2 30 "$I_OPAC" | strip)
   case "$sel" in
-    "Waybar")
+    "Waybar ("*)
       v=$(pick "Waybar" "$WAYBAR_OP" 1.0 0.8 0.5 0.3)
       [ -n "$v" ] && { save WAYBAR_OP "$v"
         ~/.config/rice/scripts/style-render.py --waybar
@@ -264,7 +331,7 @@ menu_transp() {
           pkill -x waybar 2>/dev/null || true; sleep 0.4
           setsid ~/.config/hypr/scripts/shell-start.sh >/dev/null 2>&1 &
         fi; } ;;
-    "Kitty")
+    "Kitty ("*)
       v=$(pick "Kitty" "$KITTY_OP" 1.0 0.97 0.85 0.7 0.5)
       [ -n "$v" ] && { save KITTY_OP "$v"
         ~/.config/rice/scripts/style-render.py --kitty
@@ -273,7 +340,7 @@ menu_transp() {
 }
 
 menu_wobble() {
-  local v; v=$(pick "Gelatina" "$WOBBLE" "Desligada" "Suave" "Wobbly" "Extrema")
+  local v; v=$(pick "Gelatina (atual: $WOBBLE)" "$WOBBLE" "Desligada" "Suave" "Wobbly" "Extrema")
   [ -n "$v" ] && { save WOBBLE "$v"; apply_hypr; }
 }
 
@@ -306,8 +373,13 @@ apply_style() {
 }
 
 menu_estilo() {
-  local v; v=$(pick "Estilo" "${STYLE:-Padrão}" "Padrão" "Liquid Glass" "Omarchy")
-  [ -n "$v" ] && apply_style "$v"
+  local cur="${STYLE:-Padrão}" v
+  v=$(pick "Estilo" "$cur" "Padrão" "Liquid Glass" "Omarchy" "Restaurar este estilo")
+  case "$v" in
+    "") ;;
+    "Restaurar este estilo") apply_style "$cur" ;;
+    *) apply_style "$v" ;;
+  esac
 }
 
 # ---------------- atalhos: ver e mudar ----------------
@@ -394,10 +466,10 @@ menu_energia() {
     } | fz "Energia" 5 30 "$I_POWER" | strip)
   case "$sel" in
     "Bloquear")  ~/.config/hypr/scripts/hyprlock.sh ;;
-    "Suspender") systemctl suspend ;;
+    "Suspender") confirm "Suspender a sessão?" && systemctl suspend ;;
     "Sair")      hyprctl dispatch 'hl.dsp.exit()' ;;
-    "Reiniciar") systemctl reboot ;;
-    "Desligar")  systemctl poweroff ;;
+    "Reiniciar") confirm "Reiniciar o computador?" && systemctl reboot ;;
+    "Desligar")  confirm "Desligar o computador?" && systemctl poweroff ;;
   esac
   exit 0
 }

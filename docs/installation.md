@@ -17,6 +17,15 @@ cd ~/dotfiles
 ./bootstrap.sh
 ```
 
+O `bootstrap.sh` aceita algumas opções úteis:
+
+```bash
+./bootstrap.sh --dry-run        # mostra o que seria feito
+./bootstrap.sh --minimal        # sem bluetooth, btop e nwg-look
+./bootstrap.sh --no-bluetooth   # só não mexe com bluetooth
+./bootstrap.sh --no-aur         # você já tem matugen/awww instalados
+```
+
 Depois do script:
 
 1. Coloque algumas imagens em `~/Pictures/Wallpapers`.
@@ -50,8 +59,8 @@ sudo pacman -S --needed git stow hyprland hyprlock hypridle waybar kitty fuzzel 
 yay -S matugen-bin awww      # ou swww
 # opcional: barra/Central de Controle em Quickshell
 sudo pacman -S --needed quickshell
-cd ~/dotfiles && stow --no --verbose --target="$HOME" rice   # simulação: veja se há conflitos
-stow --target="$HOME" rice
+cd ~/dotfiles && stow --no --no-folding --verbose --target="$HOME" rice   # simulação: veja se há conflitos
+stow --no-folding --target="$HOME" rice
 ~/.config/hypr/scripts/menu.sh --init   # gera o estado inicial
 ```
 
@@ -60,16 +69,22 @@ O `python3` é necessário para o `style-render.py`, que aplica os estilos.
 ## Atualizar
 
 ```bash
-cd ~/dotfiles && git pull
+cd ~/dotfiles && ./update.sh
 ```
-Como as configs são links, as mudanças valem na hora. Para recarregar o Hyprland: `hyprctl reload`.
+
+O script faz `git pull --ff-only`, `stow --restow`, regenera o estado com
+`menu.sh --init` e roda o `doctor.sh`. Use `./update.sh --dry-run` para ver os
+comandos sem executar. Como as configs são links, as mudanças valem na hora;
+para recarregar o Hyprland: `hyprctl reload`.
 
 ## Desinstalar
 
 ```bash
-cd ~/dotfiles && stow --delete --target="$HOME" rice
+cd ~/dotfiles && ./uninstall.sh
 ```
-Isso remove só os links. Seus backups em `~/.config-backup-rice-*` continuam lá.
+Isso remove só os links criados pelo stow. Seus arquivos pessoais e os backups
+em `~/.config-backup-rice-*` continuam lá. Para apagar também o estado do rice
+(`~/.local/state/rice`), use `./uninstall.sh --remove-state`.
 
 ## Problemas?
 

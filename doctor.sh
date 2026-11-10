@@ -49,11 +49,11 @@ if have fc-list && fc-list | grep -qi 'JetBrainsMono.*Nerd'; then ok "JetBrainsM
 # ---------------------------------------------------------------- links
 sec "Configs ligadas (stow)"
 if have stow && [[ -d "$REPO/rice" ]]; then
-  s="$(cd "$REPO" && stow --no --verbose --target="$HOME" rice 2>&1)"
+  s="$(cd "$REPO" && stow --no --no-folding --verbose --target="$HOME" rice 2>&1)"
   if grep -qE 'existing target|conflict' <<<"$s"; then
-    fail "o stow encontrou conflitos (veja: cd ~/dotfiles && stow --no --verbose --target=\"\$HOME\" rice)"
+    fail "o stow encontrou conflitos (veja: cd ~/dotfiles && stow --no --no-folding --verbose --target=\"\$HOME\" rice)"
   elif grep -q '^LINK:' <<<"$s"; then
-    warn "há arquivos do repositório ainda não ligados em ~/.config (rode: stow --target=\"\$HOME\" rice)"
+    warn "há arquivos do repositório ainda não ligados em ~/.config (rode: stow --no-folding --target=\"\$HOME\" rice)"
   else
     ok "todos os links do repositório estão íntegros"
   fi

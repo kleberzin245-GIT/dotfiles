@@ -6,19 +6,41 @@
 # manual completa está em docs/installation.md.
 #
 # Uso:
-#   install.sh          -> Arch: executa o bootstrap.sh
-#   install.sh --no-run -> modo secagem (nenhuma ação executada)
+#   install.sh              -> Arch: executa o bootstrap.sh
+#   install.sh --no-run     -> modo secagem (passa --dry-run ao bootstrap)
+#   install.sh --minimal    -> instala só o essencial (repassado ao bootstrap)
+#   install.sh --no-aur     -> não instala matugen/awww pelo AUR
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
 
 say() { echo "$@" ; }
 
-DRY_RUN=0
-if [ "${1:-}" = "--no-run" ]; then
-  DRY_RUN=1
-  shift
-fi
+usage() {
+  cat <<'EOF'
+Uso: install.sh [OPÇÕES DO BOOTSTRAP]
+
+  --no-run, --dry-run   mostra o que seria feito (nada é alterado)
+  --minimal             instala só o essencial
+  --no-bluetooth        não instala/ativa bluetooth
+  --no-aur              não instala matugen/awww pelo AUR
+  -h, --help            mostra esta ajuda
+
+No Arch, as opções são repassadas ao bootstrap.sh.
+EOF
+}
+
+BOOTSTRAP_ARGS=()
+PASSTHROUGH=0
+for arg in "$@"; do
+  case "$arg" in
+    -h|--help) usage; exit 0 ;;
+    --no-run|--dry-run) BOOTSTRAP_ARGS+=(--dry-run) ;;
+    --minimal|--no-bluetooth|--no-aur) BOOTSTRAP_ARGS+=("$arg") ;;
+    *) echo "ERRO: opção desconhecida: $arg" >&2; usage >&2; exit 2 ;;
+  esac
+  PASSTHROUGH=1
+done
 
 check_deps() {
   local missing=0 cmd
@@ -39,16 +61,15 @@ DNF_GUIDE='sudo dnf install -y git stow ImageMagick pkgconf-pkg-config glib2-dev
 
 if command -v pacman >/dev/null 2>&1; then
   say "Sistema detectado: Arch Linux (ou derivado)."
-  if [ "$DRY_RUN" -eq 1 ]; then
-    say "Modo secagem (--no-run): não executarei o bootstrap.sh."
-    say "Para instalar, rode: ./bootstrap.sh"
-    exit 0
-  fi
   # o stow é instalado pelo próprio bootstrap, então não o exigimos aqui
   check_deps git bash || exit 1
   say "Executando o bootstrap.sh (pode levar alguns minutos)..."
   echo
-  exec ./bootstrap.sh
+  exec ./bootstrap.sh "${BOOTSTRAP_ARGS[@]}"
+fi
+
+if [ "$PASSTHROUGH" -eq 1 ]; then
+  say "Estas opções só se aplicam ao fluxo automático no Arch; ignorando-as."
 fi
 
 if command -v apt >/dev/null 2>&1; then
@@ -57,7 +78,7 @@ if command -v apt >/dev/null 2>&1; then
   echo
   echo "  $APT_GUIDE"
   echo
-  say "Depois ligue as configs com: stow --target=\"\$HOME\" rice"
+  say "Depois ligue as configs com: stow --no-folding --target=\"\$HOME\" rice"
   say "E siga docs/installation.md para os passos restantes."
   exit 0
 fi
@@ -68,7 +89,7 @@ if command -v dnf >/dev/null 2>&1; then
   echo
   echo "  $DNF_GUIDE"
   echo
-  say "Depois ligue as configs com: stow --target=\"\$HOME\" rice"
+  say "Depois ligue as configs com: stow --no-folding --target=\"\$HOME\" rice"
   say "E siga docs/installation.md para os passos restantes."
   exit 0
 fi

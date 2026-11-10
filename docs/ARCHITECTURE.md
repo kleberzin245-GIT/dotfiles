@@ -65,6 +65,9 @@ rice/.config/rice/styles/<id>.json
 | `dotsave` | raiz | Commit + push (ativa o hook pre-commit sozinho) |
 | `bootstrap.sh` | raiz | Instala pacotes, linka configs (stow), configura o ambiente (Arch) |
 | `install.sh` | raiz | Entrada: no Arch chama o bootstrap; nas outras distros imprime o guia manual |
+| `update.sh` | raiz | `git pull` + `stow --restow` + `menu.sh --init` + `doctor.sh` |
+| `uninstall.sh` | raiz | Remove os links do stow (e opcionalmente o estado do rice) |
+| `Makefile` | raiz | Atalhos para instalar, atualizar, diagnosticar, testar e desinstalar |
 
 ## Fluxo de personalização
 

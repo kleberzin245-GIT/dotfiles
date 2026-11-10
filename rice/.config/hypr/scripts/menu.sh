@@ -11,7 +11,12 @@ Uso: menu.sh [OPÇÃO]
   --init               gera settings.lua, binds.lua e os arquivos de estilo
   --extras             reaplica tela de bloqueio e notificações do estilo atual
   --apply-style NOME   aplica um estilo (Padrão, Liquid Glass, Omarchy)
+  --set CHAVE=VALOR    altera uma opção (ex.: --set GAPS=Grande)
+  --reset              descarta os ajustes locais e volta ao estilo Padrão
   -h, --help           mostra esta ajuda
+
+Chaves aceitas em --set: GAPS, ROUNDING, BORDER, BLUR, INACTIVE, WOBBLE,
+WAYBAR_OP, KITTY_OP, RICE_SHELL e STYLE.
 EOF
 }
 
@@ -69,6 +74,28 @@ case "${1:-}" in
       exit 2
     fi
     apply_style "$1"
+    exit 0
+    ;;
+  --set)
+    shift
+    if [ "$#" -eq 0 ]; then
+      echo "ERRO: --set exige CHAVE=VALOR." >&2
+      exit 2
+    fi
+    for pair in "$@"; do
+      set_option "$pair" || exit $?
+    done
+    exit 0
+    ;;
+  --reset)
+    mkdir -p "$STATE"
+    if [ -f "$CFG" ]; then
+      backup="$STATE/settings.local.env.backup-$(date +%Y%m%d-%H%M%S)"
+      cp "$CFG" "$backup"
+      rm -f "$CFG"
+      echo "backup dos ajustes: $backup" >&2
+    fi
+    apply_style "Padrão"
     exit 0
     ;;
   -h|--help)

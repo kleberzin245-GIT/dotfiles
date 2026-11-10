@@ -36,10 +36,13 @@ if ! git rev-parse --git-dir >/dev/null 2>&1; then
 fi
 
 # Ativa o hook de proteção contra dados sensíveis (se ainda não estiver ativo)
-if [ -f hooks/pre-commit ] && [ ! -e .git/hooks/pre-commit ]; then
-  ln -sf ../../hooks/pre-commit .git/hooks/pre-commit
-  echo "hook pre-commit ativado."
-elif [ ! -e .git/hooks/pre-commit ]; then
+if [ -f hooks/pre-commit ]; then
+  chmod +x hooks/pre-commit
+  if [ "$(git config --get core.hooksPath 2>/dev/null || true)" != "hooks" ]; then
+    git config core.hooksPath hooks
+    echo "hook pre-commit ativado (core.hooksPath=hooks)."
+  fi
+else
   echo "AVISO: hooks/pre-commit não encontrado; o commit não será verificado." >&2
 fi
 
