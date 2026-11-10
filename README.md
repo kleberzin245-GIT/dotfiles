@@ -78,6 +78,13 @@ O objetivo é criar uma área de trabalho com identidade visual distinta, mas qu
 
 ---
 
+## 📋 Requisitos
+
+- **Arch Linux ou derivado** (CachyOS, EndeavourOS…), com `pacman` e `sudo`
+- **Hyprland 0.55 ou mais novo** — a configuração é em Lua (`hyprland.lua`)
+- Usuário normal (o `bootstrap.sh` não roda como root)
+- Uma Nerd Font (o `bootstrap.sh` instala a JetBrainsMono Nerd Font)
+
 ## 🛠️ Instalação
 
 ```bash
@@ -91,6 +98,8 @@ Depois, coloque algumas imagens em `~/Pictures/Wallpapers`, gere o tema uma vez 
 
 📖 Detalhes (apenas Arch e derivados) em: [`docs/installation.md`](docs/installation.md) e [`docs/troubleshooting.md`](docs/troubleshooting.md).
 
+🩺 Algo não funcionou? Rode `./doctor.sh` para um diagnóstico (ou `./doctor.sh --report` para colar numa *issue*).
+
 > ⚠️ Revise `bootstrap.sh` antes de rodar em uma máquina nova.
 
 ---
@@ -99,12 +108,16 @@ Depois, coloque algumas imagens em `~/Pictures/Wallpapers`, gere o tema uma vez 
 
 ```
 dotfiles/
-├── bootstrap.sh          // instalação (Arch + derivados)
-├── install.sh            // entrada: Arch (bootstrap) / guia nas demais
-├── dotsave               // commit + push
-├── rice/.config          // configs vinculadas ao $HOME via stow
-├── preview/              // capturas do desktop
-├── docs/                 // documentação
+├── bootstrap.sh          # instalação (Arch + derivados)
+├── install.sh            # entrada: Arch (bootstrap) / guia nas demais
+├── dotsave               # commit + push
+├── doctor.sh             # diagnóstico do rice (somente leitura)
+├── extras/               # ajustes opcionais do sistema (zram)
+├── hooks/                # git hooks do repositório
+├── .github/              # workflow de verificação e modelo de issue
+├── rice/.config          # configs vinculadas ao $HOME via stow
+├── preview/              # capturas do desktop
+├── docs/                 # documentação
 └── LICENSE
 ```
 
