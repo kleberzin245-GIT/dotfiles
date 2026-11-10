@@ -44,13 +44,18 @@ Se preferir não usar o script:
 
 ```bash
 sudo pacman -S --needed git stow hyprland hyprlock hypridle waybar kitty fuzzel mako rofi \
-  imagemagick starship fastfetch eza bat pipewire wireplumber pipewire-pulse pavucontrol \
+  imagemagick starship fastfetch eza bat less python3 pipewire wireplumber pipewire-pulse pavucontrol \
   brightnessctl playerctl grim slurp wl-clipboard cliphist ttf-jetbrains-mono-nerd \
   papirus-icon-theme libnotify btop bluez bluez-utils bluetui
 yay -S matugen-bin awww      # ou swww
+# opcional: barra/Central de Controle em Quickshell
+sudo pacman -S --needed quickshell
 cd ~/dotfiles && stow --no --verbose --target="$HOME" rice   # simulação: veja se há conflitos
 stow --target="$HOME" rice
+~/.config/hypr/scripts/menu.sh --init   # gera o estado inicial
 ```
+
+O `python3` é necessário para o `style-render.py`, que aplica os estilos.
 
 ## Atualizar
 

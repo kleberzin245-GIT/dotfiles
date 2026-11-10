@@ -5,8 +5,7 @@ DIR=~/Pictures/Wallpapers
 CACHE=~/.cache/wallpaper-thumbs-sq
 THEME=~/.config/rofi/wallpaper.rasi
 STATE=~/.cache/current_wallpaper
-# shellcheck disable=SC1090
-. ~/.config/hypr/settings.env 2>/dev/null
+OVERRIDES=${XDG_STATE_HOME:-$HOME/.local/state}/rice/rofi/overrides.rasi
 
 mkdir -p "$CACHE" "$DIR"
 IM=$(command -v magick || command -v convert) || { notify-send "Wallpaper" "Instale o imagemagick"; exit 1; }
@@ -32,18 +31,6 @@ fi
 printf '%s\0' "${FILES[@]}" | xargs -0 -P 4 -I{} bash -c 'thumb "$1" >/dev/null' _ {}
 if [ "${1:-}" = "--warm" ]; then echo "${#FILES[@]} miniaturas prontas"; exit 0; fi
 
-# pequenos ajustes de formato conforme o estilo escolhido
-overrides() {
-  case "${STYLE:-Padrão}" in
-    "Liquid Glass")
-      echo 'window { border-radius: 30px; border: 1px; border-color: #ffffff59; background-color: @surface-glass; }
-            inputbar { border-radius: 24px; } element { border-radius: 20px; } element-icon { border-radius: 16px; }' ;;
-    "Omarchy")
-      echo 'window { border-radius: 0px; } inputbar { border-radius: 0px; } element { border-radius: 0px; } element-icon { border-radius: 0px; }' ;;
-    *) echo '' ;;
-  esac
-}
-
 # monta a lista (arquivo temporário: o texto tem bytes NUL que não passam por variável)
 LIST=$(mktemp)
 cur=$(cat "$STATE" 2>/dev/null || true)
@@ -56,8 +43,10 @@ for f in "${FILES[@]}"; do
   i=$((i+1))
 done
 
+theme_str=""
+[ -f "$OVERRIDES" ] && theme_str=$(cat "$OVERRIDES")
 idx=$(rofi -dmenu -i -show-icons -p "Wallpaper" -format i -selected-row "$sel_row" \
-        -theme "$THEME" -theme-str "$(overrides)" < "$LIST" || true)
+        -theme "$THEME" -theme-str "$theme_str" < "$LIST" || true)
 rm -f "$LIST"
 [ -z "$idx" ] && exit 0
 

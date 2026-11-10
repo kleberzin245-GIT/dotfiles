@@ -1,0 +1,49 @@
+{
+  "id": "omarchy",
+  "name": "Omarchy",
+  "hypr": {
+    "GAPS": "Médio",
+    "ROUNDING": 0,
+    "BORDER": "Dinâmica",
+    "BLUR": "Leve",
+    "INACTIVE": 1.0,
+    "WOBBLE": "Desligada"
+  },
+  "waybar": {
+    "height": 28,
+    "margin_top": 0,
+    "margin_left": 0,
+    "margin_right": 0,
+    "opacity": 0.5,
+    "radius": 0
+  },
+  "kitty": {
+    "opacity": 0.97
+  },
+  "fuzzel": {
+    "border_width": 2,
+    "border_radius": 0
+  },
+  "mako": {
+    "alpha": "f2",
+    "border_size": 2,
+    "border_radius": 0,
+    "padding": 10,
+    "margin": 8,
+    "width": 340,
+    "glass_border": false
+  },
+  "rofi": {
+    "overrides": "window { border-radius: 0px; } inputbar { border-radius: 0px; } element { border-radius: 0px; } element-icon { border-radius: 0px; }"
+  },
+  "hyprlock": "omarchy",
+  "quickshell": {
+    "bar_height": 28,
+    "bar_margin_top": 0,
+    "bar_margin_x": 0,
+    "bar_radius": 0,
+    "panel_radius": 0,
+    "panel_margin": 8,
+    "blur": false
+  }
+}

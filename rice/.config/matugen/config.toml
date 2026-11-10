@@ -40,3 +40,8 @@ output_path = '~/.config/rofi/colors.rasi'
 [templates.starship]
 input_path = '~/.config/matugen/templates/starship.tpl.toml'
 output_path = '~/.config/starship.toml'
+
+# Quickshell (preparação; a barra ainda não é o padrão)
+[templates.quickshell]
+input_path = '~/.config/matugen/templates/quickshell-colors.json'
+output_path = '~/.local/state/rice/quickshell/colors.json'

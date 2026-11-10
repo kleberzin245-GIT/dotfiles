@@ -1,0 +1,49 @@
+{
+  "id": "padrao",
+  "name": "Padrão",
+  "hypr": {
+    "GAPS": "Médio",
+    "ROUNDING": 12,
+    "BORDER": "Branca",
+    "BLUR": "Leve",
+    "INACTIVE": 0.94,
+    "WOBBLE": "Wobbly"
+  },
+  "waybar": {
+    "height": 34,
+    "margin_top": 8,
+    "margin_left": 12,
+    "margin_right": 12,
+    "opacity": 0.5,
+    "radius": 14
+  },
+  "kitty": {
+    "opacity": 0.5
+  },
+  "fuzzel": {
+    "border_width": 2,
+    "border_radius": 16
+  },
+  "mako": {
+    "alpha": "ee",
+    "border_size": 2,
+    "border_radius": 12,
+    "padding": 12,
+    "margin": 10,
+    "width": 340,
+    "glass_border": false
+  },
+  "rofi": {
+    "overrides": ""
+  },
+  "hyprlock": "padrao",
+  "quickshell": {
+    "bar_height": 34,
+    "bar_margin_top": 8,
+    "bar_margin_x": 12,
+    "bar_radius": 14,
+    "panel_radius": 16,
+    "panel_margin": 12,
+    "blur": true
+  }
+}

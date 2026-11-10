@@ -9,6 +9,7 @@
 *.antes-*
 *.antigo
 *.bak
+*.backup-*
 *.nao-usado
 *.antes-icones
 backup-pilulas/
@@ -19,14 +20,15 @@ colors.conf
 colors.css
 colors.ini
 settings.lua
-fastfetch/colors.env
+**/fastfetch/colors.env
 
-# Arquivos gerados em runtime (menu / wallpaper)
+# Estado do usuário e arquivos gerados em runtime (menu / wallpaper)
+settings.local.env
 current_wallpaper
 binds.lua
-fastfetch/logo.txt
-mako/config
-mako/colors.part
+**/fastfetch/logo.txt
+**/mako/config
+**/mako/colors.part
 # starship.toml e fastfetch/config.jsonc são defaults commitados (regenerados em wallpaper)
 
 # Logs e arquivos de disco
@@ -34,3 +36,7 @@ mako/colors.part
 colors.rasi
 colors.part
 *.novo
+
+# Python
+__pycache__/
+*.pyc

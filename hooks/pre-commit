@@ -38,9 +38,10 @@ while IFS= read -r f; do
       ;;
   esac
 
-  # Exige contexto de atribuição para reduzir falsos positivos (ex.: a palavra
-  # "token" numa frase não bloqueia; "token = abc123" bloqueia).
-  if grep -iEn '(password|passwd|secret|token|api[_-]?key|apikey|access[_-]?key|client[_-]?secret|private[_-]?key)[[:space:]]*[:=]|authorization[[:space:]]*[:=]|bearer[[:space:]]+[A-Za-z0-9._~+/-]+=*|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----' "$f" >/dev/null 2>&1; then
+  # Exige contexto de atribuição E um valor com cara de segredo (>= 8 chars),
+  # para reduzir falsos positivos como `password = ""` em campos de UI.
+  SECRET_RE="(password|passwd|secret|token|api[_-]?key|apikey|access[_-]?key|client[_-]?secret|private[_-]?key)[[:space:]]*[:=][[:space:]]*(\"[^\"]{8,}\"|'[^']{8,}'|[A-Za-z0-9_./+~-]{16,})|authorization[[:space:]]*[:=]|bearer[[:space:]]+[A-Za-z0-9._~+/-]{16,}=*|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----"
+  if grep -iEn "$SECRET_RE" "$f" >/dev/null 2>&1; then
     echo "================================================================"
     echo "⚠️  Possível dado sensível no arquivo:"
     echo "   $f"

@@ -47,7 +47,8 @@ O objetivo é criar uma área de trabalho com identidade visual distinta, mas qu
 
 - **Hyprland** — compositor Wayland dinâmico (tiling)
 - **Matugen** — gera esquemas de cores a partir do wallpaper
-- **Waybar** — barra de status personalizada
+- **Waybar** — barra de status personalizada (padrão)
+- **Quickshell** — barra e Central de Controle opcionais (`RICE_SHELL=quickshell`)
 - **Kitty** — terminal
 - **Fuzzel** — launcher de aplicativos
 - **Mako** — daemon de notificações
@@ -57,6 +58,7 @@ O objetivo é criar uma área de trabalho com identidade visual distinta, mas qu
 - **Estilos** — troca visual entre *Padrão*, *Liquid Glass* e *Omarchy*
 - **Rofi** — grade de miniaturas para escolher o wallpaper (`SUPER+SHIFT+W`)
 - **Menu de controle** (`SUPER+M`) — wallpaper, estilo, tema, janelas, blur, transparência, gelatina, atalhos editáveis e energia
+- **Estilos em manifestos** — um JSON por estilo em `rice/.config/rice/styles/`, renderizado por `style-render.py` para Waybar, Kitty, Fuzzel, Hyprlock, Mako, Rofi e Quickshell
 - **Starship, fastfetch, eza e bat** — terminal com as cores do wallpaper
 
 ## ⚙️ Stack
@@ -65,7 +67,8 @@ O objetivo é criar uma área de trabalho com identidade visual distinta, mas qu
 |---|---|
 | Hyprland | Wayland compositor |
 | Matugen | Tema dinâmico (cores) |
-| Waybar | Barra de status |
+| Waybar | Barra de status (padrão) |
+| Quickshell | Barra/Central de Controle (opcional) |
 | Kitty | Terminal |
 | Fuzzel | Launcher |
 | Mako | Notificações |
@@ -96,6 +99,10 @@ cd ~/dotfiles
 Depois, coloque algumas imagens em `~/Pictures/Wallpapers`, gere o tema uma vez com
 `~/.config/hypr/scripts/wallpaper.sh ~/Pictures/Wallpapers/SUA_IMAGEM.png` e faça logout e login.
 
+> A barra opcional em Quickshell não é instalada pelo `bootstrap.sh`. Se quiser usá-la,
+> instale `quickshell` e defina `RICE_SHELL="quickshell"` em
+> `~/.config/hypr/settings.local.env` (a Waybar continua sendo o padrão).
+
 📖 Detalhes (apenas Arch e derivados) em: [`docs/installation.md`](docs/installation.md) e [`docs/troubleshooting.md`](docs/troubleshooting.md).
 
 🩺 Algo não funcionou? Rode `./doctor.sh` para um diagnóstico (ou `./doctor.sh --report` para colar numa *issue*).
@@ -116,6 +123,9 @@ dotfiles/
 ├── hooks/                # git hooks do repositório
 ├── .github/              # workflow de verificação e modelo de issue
 ├── rice/.config          # configs vinculadas ao $HOME via stow
+│   ├── rice/styles       # manifestos de estilo (JSON)
+│   ├── rice/scripts      # style-render.py (gera os arquivos de estilo)
+│   └── quickshell        # barra / Central de Controle opcionais
 ├── preview/              # capturas do desktop
 ├── docs/                 # documentação
 └── LICENSE

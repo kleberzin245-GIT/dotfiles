@@ -10,7 +10,7 @@
 
 /* Fundo da barra: 50% transparente (o blur vem do Hyprland) */
 window#waybar {
-    background-color: alpha(@surface, 0.5);
+    background-color: alpha(@surface, {{opacity}});
     color: @on_surface;
 }
 
@@ -63,5 +63,5 @@ tooltip label { color: @on_surface; }
 
 /* flutuante */
 window#waybar {
-    border-radius: 14px;
+    border-radius: {{radius}}px;
 }

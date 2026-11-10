@@ -57,7 +57,34 @@ Se não houver controlador, o PC não tem bluetooth embutido (um adaptador USB r
 
 ## Notificações sem o estilo certo
 
-O `~/.config/mako/config` é montado pelo `mako-build.sh` a partir das cores do matugen e do estilo atual. Troque o wallpaper uma vez ou rode `~/.config/hypr/scripts/mako-build.sh`.
+O `~/.config/mako/config` é montado pelo `style-render.py --mako` a partir das cores do matugen e do estilo atual. Troque o wallpaper uma vez ou rode:
+
+```bash
+~/.config/rice/scripts/style-render.py --all
+```
+
+## Trocar de estilo não fez efeito
+
+O estado gerado fica em `~/.local/state/rice/`. Force a regeração e reinicie a barra:
+
+```bash
+~/.config/rice/scripts/style-render.py --all
+~/.config/hypr/scripts/shell-start.sh --restart
+hyprctl reload
+```
+
+Se o menu mostrar um estilo que não existe, confira o manifesto em
+`rice/.config/rice/styles/` e rode `menu.sh --apply-style "Padrão"`.
+
+## Quickshell: barra/Central de Controle não abre
+
+1. Instale o Quickshell e confirme: `quickshell --version`.
+2. Use `RICE_SHELL="quickshell"` em `~/.config/hypr/settings.local.env`.
+3. Reinicie: `~/.config/hypr/scripts/shell-start.sh --restart`.
+4. Abra o painel: `SUPER+M` (ou `quickshell ipc -p ~/.config/quickshell call rice toggleControlCenter`).
+
+Se o Quickshell falhar ao subir, o `shell-start.sh` volta para a Waybar automaticamente.
+Veja o log com `quickshell -p ~/.config/quickshell --verbose`.
 
 ## `stow` reclama de conflitos
 

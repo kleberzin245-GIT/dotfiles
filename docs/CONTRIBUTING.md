@@ -28,8 +28,11 @@ Depois, os commits são revistos antes de subir.
 
 ### 3. Testes antes de abrir PR
 
-- `bash -n` em todo script shell adicionado.
-- Troque de estilo no menu e confirme que o `Waybar`/`Kitty` reagem.
+- `bash -n` e `shellcheck -S warning` em todo script shell adicionado.
+- `python3 -m py_compile rice/.config/rice/scripts/style-render.py`.
+- Se mexer no Quickshell: `qmllint rice/.config/quickshell/**/*.qml`.
+- Rode `style-render.py --all` e confirme que `~/.local/state/rice/` é gerado.
+- Troque de estilo no menu e confirme que `Waybar`/`Kitty` reagem.
 - Teste o `dotsave` e o `pull` em uma máquina limpa.
 
 ### 4. Documente

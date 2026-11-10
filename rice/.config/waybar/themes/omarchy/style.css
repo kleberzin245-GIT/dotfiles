@@ -9,8 +9,9 @@
 }
 
 window#waybar {
-    background-color: alpha(@surface, 0.5);
+    background-color: alpha(@surface, {{opacity}});
     color: @on_surface;
+    border-radius: {{radius}}px;
 }
 
 .modules-left  { margin-left: 8px; }
@@ -30,9 +31,6 @@ window#waybar {
 #workspaces button:hover  { opacity: 0.8; }
 
 #clock { margin-left: 8.75px; font-weight: 600; }
-
-#custom-menu { margin: 0 8px 0 4px; font-size: 15px; }
-#custom-menu:hover { opacity: 0.7; }
 
 #cpu, #memory, #battery, #pulseaudio, #network, #bluetooth, #tray {
     min-width: 12px;

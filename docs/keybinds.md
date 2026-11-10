@@ -20,7 +20,7 @@ Estes são os padrões. Você pode trocar qualquer um deles em **`SUPER+M` → A
 | `SUPER + W` | Wallpaper aleatório |
 | `SUPER + SHIFT + W` | Escolher wallpaper (grade de miniaturas) |
 | `SUPER + C` | Histórico da área de transferência |
-| `SUPER + M` | Menu de controle |
+| `SUPER + M` | Menu de controle / Central de Controle |
 | `Print` | Captura de tela (seleção de área) |
 
 ## Atalhos fixos
@@ -38,8 +38,12 @@ Estes são os padrões. Você pode trocar qualquer um deles em **`SUPER+M` → A
 
 ## Onde ficam
 
-- `rice/.config/hypr/binds.tsv` — a lista editável (versionada no git).
+- `rice/.config/hypr/binds.tsv` — a lista padrão (semente versionada no git).
+- `~/.local/state/rice/binds.tsv` — a sua lista editável (o menu grava aqui).
 - `~/.config/hypr/binds.lua` — gerado a partir do `.tsv` (não versionado, não edite à mão).
 - `rice/.config/hypr/hyprland.lua` — os atalhos fixos.
+
+`SUPER + M` abre a Central de Controle quando `RICE_SHELL="quickshell"`; caso
+contrário abre o menu em Fuzzel. Os dois caminhos levam às mesmas ações.
 
 Para restaurar os padrões: `SUPER+M` → Atalhos → "Restaurar atalhos padrão".

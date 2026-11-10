@@ -1,0 +1,49 @@
+{
+  "id": "glass",
+  "name": "Liquid Glass",
+  "hypr": {
+    "GAPS": "Grande",
+    "ROUNDING": 20,
+    "BORDER": "Vidro",
+    "BLUR": "Vidro",
+    "INACTIVE": 0.88,
+    "WOBBLE": "Wobbly"
+  },
+  "waybar": {
+    "height": 40,
+    "margin_top": 10,
+    "margin_left": 14,
+    "margin_right": 14,
+    "opacity": 0.4,
+    "radius": 22
+  },
+  "kitty": {
+    "opacity": 0.7
+  },
+  "fuzzel": {
+    "border_width": 1,
+    "border_radius": 28
+  },
+  "mako": {
+    "alpha": "aa",
+    "border_size": 1,
+    "border_radius": 24,
+    "padding": 16,
+    "margin": 12,
+    "width": 360,
+    "glass_border": true
+  },
+  "rofi": {
+    "overrides": "window { border-radius: 30px; border: 1px; border-color: #ffffff59; background-color: @surface-glass; }\ninputbar { border-radius: 24px; } element { border-radius: 20px; } element-icon { border-radius: 16px; }"
+  },
+  "hyprlock": "glass",
+  "quickshell": {
+    "bar_height": 40,
+    "bar_margin_top": 10,
+    "bar_margin_x": 14,
+    "bar_radius": 22,
+    "panel_radius": 24,
+    "panel_margin": 16,
+    "blur": true
+  }
+}

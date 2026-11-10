@@ -125,6 +125,39 @@ fi
 if [[ -s "$HOME/.cache/fastfetch-build.log.hist" ]]; then
   warn "o fastfetch recusou a config completa: $(tail -1 "$HOME/.cache/fastfetch-build.log.hist")"
 fi
+LE="$H/settings.local.env"
+if [[ -f "$LE" ]]; then
+  err="$(bash -c '. "$1"' _ "$LE" 2>&1 >/dev/null)"
+  [[ -z "$err" ]] && ok "settings.local.env válido" || fail "settings.local.env com erro: $err"
+fi
+
+# ---------------------------------------------------------------- estilos
+sec "Estilos e barra"
+if [[ -x "$HOME/.config/rice/scripts/style-render.py" ]]; then
+  ok "style-render.py executável"
+else
+  warn "style-render.py ausente ou sem permissão de execução"
+fi
+ST="${XDG_STATE_HOME:-$HOME/.local/state}/rice"
+for f in style.json waybar/config.jsonc waybar/style.css kitty/style.conf fuzzel/overrides.env; do
+  [[ -s "$ST/$f" ]] && ok "estado: $f" || warn "estado ausente: $f (rode: menu.sh --init)"
+done
+rs="$(grep -hE '^RICE_SHELL=' "$H/settings.env" "$LE" 2>/dev/null | tail -1 | cut -d= -f2- | tr -d '"')"
+rs="${rs:-waybar}"
+if [[ "$rs" = quickshell ]]; then
+  have quickshell && ok "RICE_SHELL=quickshell (instalado)" || fail "RICE_SHELL=quickshell, mas quickshell não está instalado"
+else
+  ok "RICE_SHELL=$rs"
+fi
+if have python3 && [[ -d "$REPO/rice/.config/rice/styles" ]]; then
+  while IFS= read -r f; do
+    if python3 -c 'import json,sys; json.load(open(sys.argv[1], encoding="utf-8"))' "$f" 2>/dev/null; then
+      ok "manifesto: ${f#"$REPO/rice/.config/rice/styles/"}"
+    else
+      fail "manifesto inválido: ${f#"$REPO/rice/.config/rice/styles/"}"
+    fi
+  done < <(find "$REPO/rice/.config/rice/styles" -maxdepth 1 -name '*.json' 2>/dev/null)
+fi
 
 # ---------------------------------------------------------------- serviços e git
 sec "Serviços e repositório"

@@ -1,6 +1,6 @@
 # Personalização
 
-Quase tudo se ajusta pelo **menu de controle** (`SUPER+M`). Cada escolha é aplicada na hora e fica salva em `settings.env`.
+Quase tudo se ajusta pelo **menu de controle** (`SUPER+M`). Cada escolha é aplicada na hora e fica salva em `~/.config/hypr/settings.local.env` (o `settings.env` do repositório guarda só os defaults).
 
 ## Menu de controle
 
@@ -28,7 +28,7 @@ Depois de aplicar um estilo, dá pra ajustar cada item separadamente pelo menu.
 
 ## Cores (matugen)
 
-Ao trocar o wallpaper, o `matugen` gera as cores e os templates em `rice/.config/matugen/templates/` produzem os arquivos de cada programa. Os arquivos gerados **não** ficam no git (`colors.*`, `settings.lua`, `binds.lua`, `mako/config`).
+Ao trocar o wallpaper, o `matugen` gera as cores e os templates em `rice/.config/matugen/templates/` produzem os arquivos de cada programa. Os arquivos gerados **não** ficam no git (`colors.*`, `settings.lua`, `binds.lua`, `mako/config`, `~/.local/state/rice/*`).
 
 Para mudar quais programas recebem as cores, edite `rice/.config/matugen/config.toml`.
 
@@ -48,18 +48,32 @@ Para mudar quais programas recebem as cores, edite `rice/.config/matugen/config.
 
 ## Criar um estilo novo
 
-1. Crie `rice/.config/waybar/themes/<id>/config.jsonc` e `style.css`.
-2. Crie `rice/.config/hypr/lock-styles/<id>.conf`.
-3. Em `rice/.config/hypr/scripts/menu.sh`, adicione o estilo no `case` de `apply_style` (valores de gaps, blur, etc.) e em `apply_extras`.
-4. Em `rice/.config/hypr/scripts/mako-build.sh`, adicione o formato das notificações.
-5. Em `rice/.config/hypr/scripts/wallpaper-picker.sh`, ajuste a função `overrides` se quiser mudar a grade.
+1. Copie `rice/.config/rice/styles/padrao.json` para `rice/.config/rice/styles/<id>.json` e ajuste `id`, `name` e as seções (`hypr`, `waybar`, `kitty`, `fuzzel`, `mako`, `rofi`, `hyprlock`, `quickshell`).
+2. Crie `rice/.config/waybar/themes/<id>/style.css` usando os tokens `{{opacity}}` e `{{radius}}`.
+3. Crie `rice/.config/hypr/lock-styles/<id>.conf`.
+4. Teste com `~/.config/rice/scripts/style-render.py --style "Seu Nome" --all`.
+5. O estilo já aparece no menu (ele lê os manifestos automaticamente).
+
+## Barra: Waybar ou Quickshell
+
+A Waybar é o padrão. Para usar a barra/Central de Controle em Quickshell, instale
+`quickshell` e defina:
+
+```bash
+echo 'RICE_SHELL="quickshell"' >> ~/.config/hypr/settings.local.env
+~/.config/hypr/scripts/shell-start.sh --restart
+```
+
+`SUPER+M` abre a Central de Controle; sem Quickshell, abre o menu em Fuzzel.
 
 ## O que editar e o que é gerado
 
 | Editar | Gerado (não versionado) |
 |---|---|
 | `hyprland.lua`, `binds.tsv`, `settings.env` | `settings.lua`, `binds.lua`, `colors.lua`, `colors.conf` |
-| `waybar/config.jsonc`, `style.css`, `themes/*` | `waybar/colors.css` |
-| `matugen/templates/*`, `config.toml` | `kitty/colors.conf`, `fuzzel/colors.ini`, `rofi/colors.rasi`, `mako/config`, `fastfetch/colors.env` |
+| `rice/styles/*.json`, `waybar/themes/*/style.css` | `~/.local/state/rice/waybar/*`, `kitty/style.conf`, `fuzzel/overrides.env`, `rofi/overrides.rasi`, `hyprlock/style.conf` |
+| `waybar/config.jsonc` | `~/.local/state/rice/waybar/config.jsonc` |
+| `matugen/templates/*`, `config.toml` | `kitty/colors.conf`, `fuzzel/colors.ini`, `rofi/colors.rasi`, `mako/config`, `fastfetch/colors.env`, `quickshell/colors.json` |
 
 Mudanças em arquivos versionados entram no git com `~/dotfiles/dotsave "descrição"`.
+Inclua também as novas pastas (`git add rice/.config/rice rice/.config/quickshell`).

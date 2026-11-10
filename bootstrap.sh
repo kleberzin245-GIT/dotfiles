@@ -4,6 +4,19 @@ set -Eeuo pipefail
 
 die() { echo "ERRO: $*" >&2; exit 1; }
 
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  cat <<'EOF'
+Uso: bootstrap.sh
+
+Instala os pacotes (Arch/CachyOS/EndeavourOS), liga as configs com stow e
+gera o estado inicial do rice. Pode ser executado mais de uma vez.
+
+Opções:
+  -h, --help   mostra esta ajuda
+EOF
+  exit 0
+fi
+
 command -v pacman >/dev/null 2>&1 || die "pacman não encontrado (este instalador é para Arch e derivados)."
 command -v sudo   >/dev/null 2>&1 || die "sudo não encontrado. Instale-o antes de continuar."
 [[ $EUID -ne 0 ]] || die "não execute como root. Use o seu usuário normal."
@@ -21,7 +34,7 @@ sudo pacman -S --needed --noconfirm \
   bluez bluez-utils bluetui btop \
   grim slurp wl-clipboard cliphist \
   ttf-jetbrains-mono-nerd papirus-icon-theme adw-gtk-theme nwg-look \
-  rofi imagemagick starship fastfetch eza bat
+  rofi imagemagick starship fastfetch eza bat less python3
 
 sudo systemctl enable --now bluetooth.service || echo "AVISO: não consegui ativar o bluetooth (sem adaptador?)."
 
@@ -64,13 +77,31 @@ backup_conflicts() {
 backup_conflicts
 stow --target="$HOME" rice || die "o stow ainda encontrou conflitos. Rode: stow --no --verbose --target=\"\$HOME\" rice"
 
+# starship.toml e fastfetch/config.jsonc são regenerados pelo matugen e pelo
+# fastfetch-build (por isso ficam fora do stow); instala o default se faltar.
+for f in starship.toml fastfetch/config.jsonc; do
+  [[ -L "$HOME/.config/$f" ]] && rm "$HOME/.config/$f"
+  if [[ ! -e "$HOME/.config/$f" ]]; then
+    install -Dm644 "rice/.config/$f" "$HOME/.config/$f"
+    echo "   default: ~/.config/$f"
+  fi
+done
+
 mkdir -p "$HOME/Pictures/Wallpapers"
 
 if [[ -f "$HOME/.config/shell/rice.sh" ]]; then
+  # shellcheck disable=SC2016
+  RICE_LINE='[ -f "$HOME/.config/shell/rice.sh" ] && . "$HOME/.config/shell/rice.sh"'
   touch "$HOME/.bashrc"
   if ! grep -qF 'shell/rice.sh' "$HOME/.bashrc"; then
-    # shellcheck disable=SC2016
-    printf '\n%s\n' '[ -f "$HOME/.config/shell/rice.sh" ] && . "$HOME/.config/shell/rice.sh"' >> "$HOME/.bashrc"
+    printf '\n%s\n' "$RICE_LINE" >> "$HOME/.bashrc"
+  fi
+  # A linha funciona no zsh também; só adiciona se o zsh estiver instalado.
+  if command -v zsh >/dev/null 2>&1; then
+    touch "$HOME/.zshrc"
+    if ! grep -qF 'shell/rice.sh' "$HOME/.zshrc"; then
+      printf '\n%s\n' "$RICE_LINE" >> "$HOME/.zshrc"
+    fi
   fi
 fi
 
@@ -79,12 +110,20 @@ if [[ -d "$HOME/.config/hypr/scripts" ]]; then
 else
   echo "AVISO: diretório de scripts do Hyprland não encontrado."
 fi
-"$HOME/.config/hypr/scripts/menu.sh" --init
+if [[ -f "$HOME/.config/rice/scripts/style-render.py" ]]; then
+  chmod +x "$HOME/.config/rice/scripts/style-render.py"
+fi
+if [[ -x "$HOME/.config/hypr/scripts/menu.sh" ]]; then
+  "$HOME/.config/hypr/scripts/menu.sh" --init \
+    || echo "AVISO: não consegui gerar o estado inicial (rode: menu.sh --init)."
+else
+  echo "AVISO: menu.sh não encontrado; o estado inicial não foi gerado."
+fi
 
 # Verifica se os binários essenciais estão instalados
 check_deps() {
   local cmd missing=0
-  for cmd in git stow bash hyprctl hyprlock hypridle hyprpolkitagent xdg-desktop-portal-hyprland waybar kitty fuzzel mako matugen rofi imagemagick brightnessctl playerctl starship eza bat fastfetch; do
+  for cmd in git stow bash python3 hyprctl hyprlock hypridle hyprpolkitagent xdg-desktop-portal-hyprland waybar kitty fuzzel mako matugen rofi imagemagick brightnessctl playerctl starship eza bat fastfetch; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
       echo "AVISO: '$cmd' não encontrado. Pode estar faltando." >&2
       missing=1

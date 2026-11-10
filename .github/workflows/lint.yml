@@ -17,6 +17,8 @@ jobs:
             echo "bash -n $f"
             bash -n "$f"
           done
+          echo "py_compile style-render.py"
+          python3 -m py_compile rice/.config/rice/scripts/style-render.py
 
       - name: ShellCheck (avisos e erros)
         run: |
@@ -38,6 +40,7 @@ jobs:
 
           bad = 0
           for p in glob.glob("rice/.config/waybar/**/config.jsonc", recursive=True) + \
+                   glob.glob("rice/.config/rice/styles/*.json") + \
                    ["rice/.config/fastfetch/config.jsonc"]:
               try:
                   load_jsonc(p); print("ok", p)
@@ -49,6 +52,38 @@ jobs:
                   tomllib.load(open(p, "rb")); print("ok", p)
               except Exception as e:
                   print("TOML inválido:", p, e); bad = 1
+          sys.exit(bad)
+          PY
+
+      - name: Manifestos de estilo completos
+        run: |
+          python3 - <<'PY'
+          import glob, json, os, sys
+          required = ("id", "name", "hypr", "waybar", "kitty", "fuzzel", "mako", "rofi", "hyprlock", "quickshell")
+          waybar_keys = ("height", "margin_top", "margin_left", "margin_right", "opacity", "radius")
+          bad = 0
+          for p in sorted(glob.glob("rice/.config/rice/styles/*.json")):
+              data = json.load(open(p, encoding="utf-8"))
+              missing = [k for k in required if k not in data]
+              if missing:
+                  print("faltando em", p, ":", ", ".join(missing)); bad = 1
+                  continue
+              missing = [k for k in waybar_keys if k not in data["waybar"]]
+              if missing:
+                  print("faltando em waybar de", p, ":", ", ".join(missing)); bad = 1
+              css = f"rice/.config/waybar/themes/{data['id']}/style.css"
+              if not os.path.exists(css):
+                  print("CSS ausente:", css); bad = 1
+              else:
+                  text = open(css, encoding="utf-8").read()
+                  for token in ("{{opacity}}", "{{radius}}"):
+                      if token not in text:
+                          print("token ausente:", token, "em", css); bad = 1
+              lock = f"rice/.config/hypr/lock-styles/{data['hyprlock']}.conf"
+              if not os.path.exists(lock):
+                  print("lock style ausente:", lock); bad = 1
+              if not isinstance(data["rofi"].get("overrides"), str):
+                  print("rofi.overrides deve ser string em", p); bad = 1
           sys.exit(bad)
           PY
 
@@ -69,7 +104,7 @@ jobs:
 
       - name: Nenhum arquivo gerado no git
         run: |
-          if git ls-files | grep -E '(^|/)(colors\.(lua|conf|css|ini|rasi|env)|settings\.lua|binds\.lua|logo\.txt)$|(^|/)mako/config$|\.(antes-[^/]*|bak)$'; then
+          if git ls-files | grep -E '(^|/)(colors\.(lua|conf|css|ini|rasi|env)|settings\.lua|binds\.lua|logo\.txt)$|(^|/)mako/config$|\.(antes-[^/]*|bak|backup-[^/]*)$'; then
             echo "Arquivos gerados ou backups estão versionados (lista acima)."; exit 1
           fi
           echo "ok"

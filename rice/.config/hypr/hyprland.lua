@@ -24,7 +24,7 @@ local mainMod  = "SUPER"
 ------------------ AUTOSTART ------------------
 hl.on("hyprland.start", function()
     hl.exec_cmd("~/.config/hypr/scripts/wallpaper.sh restore")
-    hl.exec_cmd("waybar")
+    hl.exec_cmd("~/.config/hypr/scripts/shell-start.sh")
     hl.exec_cmd("mako")
     hl.exec_cmd("hypridle")
     hl.exec_cmd("systemctl --user start hyprpolkitagent")
@@ -171,6 +171,14 @@ hl.window_rule({
 hl.layer_rule({
     name  = "waybar-blur",
     match = { namespace = "^waybar$" },
+    blur = true,
+    ignore_alpha = 0.1,
+})
+
+-- Blur atrás do Quickshell (quando RICE_SHELL=quickshell)
+hl.layer_rule({
+    name  = "quickshell-blur",
+    match = { namespace = "^quickshell" },
     blur = true,
     ignore_alpha = 0.1,
 })

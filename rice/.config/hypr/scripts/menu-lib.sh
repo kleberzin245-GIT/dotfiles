@@ -13,12 +13,22 @@ I_LOCK=$'\xef\x80\xa3';   I_OUT=$'\xef\x82\x8b';    I_REFRESH=$'\xef\x80\xa1'; I
 I_UNDO=$'\xef\x83\xa2';   I_RANDOM=$'\xef\x81\xb4'; I_IMG=$'\xef\x80\xbe'
 I_STYLE=$'\xef\x88\x99'
 
+# Teclas oferecidas ao editar atalhos (nomes aceitos pelo Hyprland).
+KEYS='1 2 3 4 5 6 7 8 9 0
+q w e r t y u i o p
+a s d f g h j k l
+z x c v b n m
+F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12
+Return space Escape Tab BackSpace Delete Insert Home End Page_Up Page_Down Left Right Up Down Print'
+
 ic()    { printf '%s  %s\n' "$1" "$2"; }          # "ícone  texto"
 strip() { sed -E 's/^[^ ]+  //'; }                 # tira o ícone da escolha
 
-# save "chave" "valor" -> escreve no settings.env (e relê)
+# save "chave" "valor" -> escreve no settings.local.env (estado do usuário)
 save() {
-  if grep -q "^$1=" "$CFG"; then sed -i --follow-symlinks "s|^$1=.*|$1=\"$2\"|" "$CFG"; else echo "$1=\"$2\"" >> "$CFG"; fi
+  mkdir -p "$(dirname "$CFG")"
+  [ -f "$CFG" ] || : > "$CFG"
+  if grep -q "^$1=" "$CFG"; then sed -i "s|^$1=.*|$1=\"$2\"|" "$CFG"; else echo "$1=\"$2\"" >> "$CFG"; fi
   # shellcheck disable=SC1090
   source "$CFG"
 }
@@ -28,21 +38,23 @@ default_binds() {
   row() { printf '%s\t%s\t%s\t%s\t%s\n' "$@"; }
   {
     row terminal   "SUPER + RETURN"    "Abrir terminal"                  exec "kitty"
-    row launcher   "SUPER + D"         "Abrir launcher"                  exec "fuzzel"
+    # shellcheck disable=SC2088  # ~ é literal e expandido pelo shell do Hyprland
+    row launcher   "SUPER + D"         "Abrir launcher"                  exec "~/.config/hypr/scripts/fuzzel.sh"
     row close      "SUPER + Q"         "Fechar janela"                   dsp  'hl.dsp.window.close()'
     row exit       "SUPER + SHIFT + E" "Sair do Hyprland"                exec "hyprctl dispatch 'hl.dsp.exit()'"
     row fullscreen "SUPER + F"         "Tela cheia"                      dsp  'hl.dsp.window.fullscreen()'
     row float      "SUPER + V"         "Alternar janela flutuante"       dsp  'hl.dsp.window.float({ action = "toggle" })'
     row pseudo     "SUPER + P"         "Pseudo-tile"                     dsp  'hl.dsp.window.pseudo()'
     row split      "SUPER + J"         "Alternar divisão"                dsp  'hl.dsp.layout("togglesplit")'
-    row lock       "SUPER + L"         "Bloquear a tela"                 exec "hyprlock"
+    # shellcheck disable=SC2088  # ~ é literal e expandido pelo shell do Hyprland
+    row lock       "SUPER + L"         "Bloquear a tela"                 exec "~/.config/hypr/scripts/hyprlock.sh"
     # shellcheck disable=SC2088  # ~ é literal e expandido pelo shell do Hyprland
     row wallpaper  "SUPER + W"         "Wallpaper aleatório"             exec "~/.config/hypr/scripts/wallpaper.sh"
     # shellcheck disable=SC2088
     row wallpickr  "SUPER + SHIFT + W" "Escolher wallpaper (miniaturas)" exec "~/.config/hypr/scripts/wallpaper-picker.sh"
-    row clipboard  "SUPER + C"         "Histórico da área de transf."    exec 'cliphist list | fuzzel --dmenu | cliphist decode | wl-copy'
+    row clipboard  "SUPER + C"         "Histórico da área de transf."    exec 'cliphist list | ~/.config/hypr/scripts/fuzzel.sh --dmenu | cliphist decode | wl-copy'
     # shellcheck disable=SC2088
-    row menu       "SUPER + M"         "Menu de controle"                exec "~/.config/hypr/scripts/menu.sh"
+    row menu       "SUPER + M"         "Menu / Central de controle"      exec "~/.config/hypr/scripts/rice-menu.sh"
     row screenshot "Print"             "Captura de tela (área)"          exec 'grim -g "$(slurp)" - | wl-copy'
   } > "$BINDS"
 }
@@ -162,7 +174,7 @@ apply_hypr() { gen_lua; gen_binds; hyprctl reload >/dev/null 2>&1 || true; }
 fz() {
   local p="$1  "
   [ -n "${4:-}" ] && p="$4  $p"
-  fuzzel --dmenu --prompt "$p" --lines "${2:-8}" --width "${3:-30}" || true
+  ~/.config/hypr/scripts/fuzzel.sh --dmenu --prompt "$p" --lines "${2:-8}" --width "${3:-30}" || true
 }
 
 pick() {
@@ -247,13 +259,16 @@ menu_transp() {
     "Waybar")
       v=$(pick "Waybar" "$WAYBAR_OP" 1.0 0.8 0.5 0.3)
       [ -n "$v" ] && { save WAYBAR_OP "$v"
-        sed -i --follow-symlinks -E "s/(background-color: alpha\(@surface, )[0-9.]+\)/\\1$v)/" ~/.config/waybar/style.css
-        pkill -SIGUSR2 waybar || true; } ;;
+        ~/.config/rice/scripts/style-render.py --waybar
+        if [ "${RICE_SHELL:-waybar}" = waybar ]; then
+          pkill -x waybar 2>/dev/null || true; sleep 0.4
+          setsid ~/.config/hypr/scripts/shell-start.sh >/dev/null 2>&1 &
+        fi; } ;;
     "Kitty")
       v=$(pick "Kitty" "$KITTY_OP" 1.0 0.97 0.85 0.7 0.5)
       [ -n "$v" ] && { save KITTY_OP "$v"
-        sed -i --follow-symlinks -E "s/^background_opacity .*/background_opacity $v/" ~/.config/kitty/kitty.conf
-        pkill -SIGUSR1 kitty || true; } ;;
+        ~/.config/rice/scripts/style-render.py --kitty
+        pkill -SIGUSR1 kitty 2>/dev/null || true; } ;;
   esac
 }
 
@@ -264,62 +279,29 @@ menu_wobble() {
 
 # ---------------- estilos completos ----------------
 apply_extras() {
-  local id
-  case "${STYLE:-Padrão}" in "Liquid Glass") id=glass ;; "Omarchy") id=omarchy ;; *) id=padrao ;; esac
-  [ -f ~/.config/hypr/lock-styles/$id.conf ] && cat ~/.config/hypr/lock-styles/$id.conf > ~/.config/hypr/hyprlock.conf
-  [ -x ~/.config/hypr/scripts/mako-build.sh ] && ~/.config/hypr/scripts/mako-build.sh
+  ~/.config/rice/scripts/style-render.py --hyprlock --mako
 }
 
 apply_style() {
-  local name="$1" T=~/.config/waybar/themes k W R
-  declare -A P
+  local name="$1" preset k
   case "$name" in
-    "Liquid Glass")
-      P=([GAPS]="Grande" [ROUNDING]=20 [BORDER]="Vidro" [BLUR]="Vidro" [INACTIVE]=0.88 [WOBBLE]="Wobbly" [WAYBAR_OP]=0.4 [KITTY_OP]=0.7)
-      T="$T/glass"; W=1; R=28 ;;
-    "Omarchy")
-      P=([GAPS]="Médio" [ROUNDING]=0 [BORDER]="Dinâmica" [BLUR]="Leve" [INACTIVE]=1.0 [WOBBLE]="Desligada" [WAYBAR_OP]=0.5 [KITTY_OP]=0.97)
-      T="$T/omarchy"; W=2; R=0 ;;
-    *)
-      name="Padrão"
-      P=([GAPS]="Médio" [ROUNDING]=12 [BORDER]="Branca" [BLUR]="Leve" [INACTIVE]=0.94 [WOBBLE]="Wobbly" [WAYBAR_OP]=0.5 [KITTY_OP]=0.5)
-      T="$T/padrao"; W=2; R=16 ;;
+    "Liquid Glass"|"Omarchy"|"Padrão") ;;
+    *) name="Padrão" ;;
   esac
-  [ -f "$T/style.css" ] || { notify-send "Estilo" "Arquivos do estilo não encontrados em $T"; return; }
 
-  for k in "${!P[@]}"; do save "$k" "${P[$k]}"; done
+  preset=$(~/.config/rice/scripts/style-render.py --style "$name" --print-preset-shell) || {
+    notify-send "Estilo" "Manifesto do estilo não encontrado"; return; }
+  eval "$preset"
+
+  for k in GAPS ROUNDING BORDER BLUR INACTIVE WOBBLE WAYBAR_OP KITTY_OP; do
+    save "$k" "${!k}"
+  done
   save STYLE "$name"
 
-  # waybar: mescla a estrutura do tema com a sua configuração (a sua vence)
-  USER_WAYBAR="$HOME/.config/waybar/config.jsonc"
-  python3 - "$T/config.jsonc" "$USER_WAYBAR" <<'PYEOF'
-import json, os, re, sys
-
-def load_jsonc(path):
-    if not os.path.exists(path):
-        return {}
-    raw = open(path, encoding="utf-8").read()
-    raw = re.sub(r"^\s*//.*$", "", raw, flags=re.M)   # comentários de linha
-    raw = re.sub(r",(\s*[}\]])", r"\1", raw)          # vírgulas finais
-    return json.loads(raw) if raw.strip() else {}
-
-theme_path, user_path = sys.argv[1:]
-theme = load_jsonc(theme_path)
-user = load_jsonc(user_path)
-with open(user_path, "w", encoding="utf-8") as f:
-    json.dump({**theme, **user}, f, indent=4)
-PYEOF
-  cat "$T/style.css"    > ~/.config/waybar/style.css
-  sed -i --follow-symlinks -E "s/(background-color: alpha\(@surface, )[0-9.]+\)/\\1${P[WAYBAR_OP]})/" ~/.config/waybar/style.css
-  # kitty
-  sed -i --follow-symlinks -E "s/^background_opacity .*/background_opacity ${P[KITTY_OP]}/" ~/.config/kitty/kitty.conf
-  # fuzzel (seção [border] é a última do arquivo)
-  sed -i --follow-symlinks -E "/^\[border\]/,\$ { s/^width=.*/width=$W/; s/^radius=.*/radius=$R/ }" ~/.config/fuzzel/fuzzel.ini
-
-  apply_extras
+  ~/.config/rice/scripts/style-render.py --style "$name" --all
   apply_hypr
-  pkill -x waybar || true; sleep 0.4; setsid waybar >/dev/null 2>&1 &
-  pkill -SIGUSR1 kitty || true
+  setsid ~/.config/hypr/scripts/shell-start.sh --restart >/dev/null 2>&1 &
+  pkill -SIGUSR1 kitty 2>/dev/null || true
   notify-send "Estilo" "$name aplicado"
 }
 
@@ -393,7 +375,7 @@ menu_atalhos() {
       n=$((n+1))
     done < "$BINDS"
     lines+="$(ic "$I_INFO" "Atalhos fixos (só leitura)")"$'\n'"$(ic "$I_UNDO" "Restaurar atalhos padrão")"
-    idx=$(printf '%s' "$lines" | fuzzel --dmenu --index --prompt "$I_KEYS  Atalhos  " --lines $((n+2)) --width 58 || true)
+    idx=$(printf '%s' "$lines" | ~/.config/hypr/scripts/fuzzel.sh --dmenu --index --prompt "$I_KEYS  Atalhos  " --lines $((n+2)) --width 58 || true)
     [ -z "$idx" ] && return
     if   [ "$idx" -lt "$n" ];  then edit_bind $((idx+1))
     elif [ "$idx" -eq "$n" ];  then show_fixed
@@ -411,7 +393,7 @@ menu_energia() {
       ic "$I_POWER"   "Desligar"
     } | fz "Energia" 5 30 "$I_POWER" | strip)
   case "$sel" in
-    "Bloquear")  hyprlock ;;
+    "Bloquear")  ~/.config/hypr/scripts/hyprlock.sh ;;
     "Suspender") systemctl suspend ;;
     "Sair")      hyprctl dispatch 'hl.dsp.exit()' ;;
     "Reiniciar") systemctl reboot ;;
